@@ -7,7 +7,7 @@ import {
   updateCraftingPrices,
   getPricesHistory,
   failAtSelling,
-  deletePrice
+  deletePrice, updateMany
 } from '../controllers/gear.js';
 import Gear from "../models/Gear/Gear.js";
 
@@ -17,6 +17,7 @@ router.get('/', get);
 router.get('/fill', fill);
 router.get('/swapComponents', swapComponents);
 router.get('/updateCraftingPrices', updateCraftingPrices);
+router.post('/bulkUpdate', updateMany);
 router.post('/update/:_id', update);
 router.put('/fail/:_id', failAtSelling);
 router.get('/prices/:_id', getPricesHistory);
