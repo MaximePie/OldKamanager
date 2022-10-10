@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import {Button} from "@mui/material";
 export const CraftColumnsGridDimensions = `48px 1fr 80px 120px repeat(2, 80px) repeat(2,60px) 140px repeat(2, 80px) 226px`;
 
 export const StyledGears = styled.div`
@@ -35,4 +36,10 @@ export const Bulker = styled.div`
 
 export const ColumnHeader = styled.span`
   cursor: pointer;
+`
+
+
+export const StyledButton = styled(Button)`
+  min-width: 20px !important;
+  padding: 0 !important;
 `
