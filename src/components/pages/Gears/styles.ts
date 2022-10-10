@@ -18,6 +18,21 @@ export const Header = styled.div`
   font-weight: bold;
 `
 
+export const Bulker = styled.div`
+  margin-bottom: .5em;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  grid-template-columns: ${CraftColumnsGridDimensions};
+  grid-column-gap: 1em;
+  
+  font-weight: bold;
+  
+  span {
+    text-align: center;
+  }
+`
+
 export const ColumnHeader = styled.span`
   cursor: pointer;
 `

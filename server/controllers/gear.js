@@ -275,6 +275,26 @@ export async function update(request, response) {
   }
 }
 
+/**
+ * Update some gears according to their gearIds and parameters filters
+ * @param request
+ * @param response
+ * @returns {Promise<void>}
+ */
+export async function updateMany(request, response) {
+    const {gearIds, parameters} = request.fields;
+    const updatedGears = await Gear.updateMany({
+        _id: {
+            $in: gearIds
+        }
+    }, parameters)
+    response.json({
+        gearIds,
+        parameters,
+        updatedGears,
+    })
+}
+
 export async function getPricesHistory(request, response) {
   response.json({
     prices: await GearPrice.find({GearId: request.params._id})

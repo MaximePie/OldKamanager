@@ -1,4 +1,5 @@
 import {Resource} from "./Resource";
+import {ObjectId} from "bson";
 
 type Component = Resource & {
   name: string,
@@ -9,7 +10,7 @@ type Component = Resource & {
 }
 
 type Gear = {
-  _id: number,
+  _id: ObjectId,
   name: string,
   level: number,
   type: string,
