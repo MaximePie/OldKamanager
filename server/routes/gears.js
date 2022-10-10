@@ -10,7 +10,6 @@ import {
   deletePrice
 } from '../controllers/gear.js';
 import Gear from "../models/Gear/Gear.js";
-import moment from "moment";
 
 const router = express.Router();
 

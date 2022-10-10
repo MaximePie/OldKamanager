@@ -172,9 +172,17 @@ export default function FilterContextProvider(props: FilterContextProviderProps)
   }
 
   function updateSearch(value: string): void {
+    /**
+     * [a], [b], [c]
+     * => a,b,c
+     */
+    const formattedValue = value
+        .replaceAll('[', '')
+        .replaceAll(']', ',')
+        .replace(', ', ',');
     setFilters({
       ...filters,
-      search: value
+      search: formattedValue
     });
   }
 }
