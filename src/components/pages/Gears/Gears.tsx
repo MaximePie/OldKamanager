@@ -1,13 +1,13 @@
 import {useQuery, useQueryClient} from "react-query";
 import {getFromServer} from "../../../services/server";
-import {Header, StyledGears, ColumnHeader, Bulker} from "./styles";
+import {Header, StyledGears, ColumnHeader, Bulker, StyledButton as Button} from "./styles";
 import Gear from "../../molecules/Gear/Gear";
 import {Gear as GearType} from "../../../types/Gear";
 import Filters from "../../molecules/Filters/Filters"
 import {Filters as FiltersType} from "./types"
-import {ChangeEvent, MouseEventHandler, useContext, useState} from "react";
+import {ChangeEvent, useContext, useState} from "react";
 import {FilterContext} from "../../../contexts/FilterContext";
-import {bulkUpdate, BulkUpdateParameters} from "../../../services/gears";
+import {bulkUpdate, BulkUpdateParameters, getBulkUpdateParametersPropertyNames} from "../../../services/gears";
 
 const initialFilters: FiltersType = {
     craft: "off"
@@ -31,8 +31,6 @@ export default function Gears() {
 
     const gears = data?.gears || [];
     const remaining = data?.remaining || 0
-
-    gears.forEach(gear => console.log(Object.values(gear).join('')))
 
     return (
         <div>
@@ -63,8 +61,14 @@ export default function Gears() {
                     <span></span>
                     <input type="checkbox" onChange={onBulkUpdateChange} name='isInMarket'/>
                     <input type="checkbox" onChange={onBulkUpdateChange} name='isInInventory'/>
-                    <input type="checkbox"/>
-                    <input type="checkbox"/>
+                    <span>
+                        <Button onClick={() => bulkUpdateField('toBeCrafted', 0)}>0</Button>
+                        <Button onClick={() => bulkUpdateField('toBeCrafted', 1)}>1</Button>
+                    </span>
+                    <span>
+                        <Button onClick={() => bulkUpdateField('onWishList', 0)}>0</Button>
+                        <Button onClick={() => bulkUpdateField('onWishList', 1)}>1</Button>
+                    </span>
                 </Bulker>
                 {isLoading ? <p>ça charge les cocos</p> :
                     sortedGears().map((gear) => (
@@ -75,6 +79,18 @@ export default function Gears() {
             </StyledGears>
         </div>
     )
+
+    /**
+     * Update the given field to the desired amount
+     * @param field
+     * @param amount
+     */
+    function bulkUpdateField(field: string, amount: 0 | 1) {
+        if (getBulkUpdateParametersPropertyNames().includes(field)) {
+            const parameters: BulkUpdateParameters = {[field]: amount}
+            bulkUpdate(gears.map(({_id}) => _id), parameters).then(refetch)
+        }
+    }
 
     function toggleFilter(filter: keyof typeof frontFilters) {
 
@@ -126,8 +142,10 @@ export default function Gears() {
      * @param event
      */
     function onBulkUpdateChange(event: ChangeEvent<HTMLInputElement>) {
-        const parameters: BulkUpdateParameters = {[event.target.name]: event.target.checked}
-        bulkUpdate(gears.map(({_id}) => _id), parameters).then(refetch)
+        if (getBulkUpdateParametersPropertyNames().includes(event.target.name)) {
+            const parameters: BulkUpdateParameters = {[event.target.name]: event.target.checked}
+            bulkUpdate(gears.map(({_id}) => _id), parameters).then(refetch)
+        }
     }
 
     function refetch() {
