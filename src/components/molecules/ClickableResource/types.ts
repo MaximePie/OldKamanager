@@ -1,6 +1,7 @@
 import {MouseEvent} from "react";
 import {ResourcePrice} from "../../../types/ResourcePrice";
 import {Props as ChartProps} from "react-apexcharts";
+import {Trend} from "../../../types/Trend";
 
 type ClickableResourceProps = {
   name: string,
@@ -11,6 +12,7 @@ type ClickableResourceProps = {
   onQuantityChange?: (newQuantity: number) => void,
   price: number,
   timesRequiredInRecipes: number,
+  trend?: Trend,
 }
 type ClickableResourceDisplayProps = Omit<ClickableResourceProps, '_id' | 'timesRequiredInRecipes'> & {
   onLeftClick?: () => void,
