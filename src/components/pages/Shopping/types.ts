@@ -17,6 +17,7 @@ type ShoppingDisplayProps = {
   slots: number,
   benefit: string,
   onHide: (name: string) => void,
+  onCancelActionClick: () => void,
 }
 
 export type {ShoppingDisplayProps, ShoppingProps, ShoppingQuery}

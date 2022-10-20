@@ -6,10 +6,9 @@ import axios from "axios";
 
 export async function get(request, response) {
   const resources = await Resource.find({
-   // timesRequiredInRecipes:  {
-     // $lte: 351
-    //},
-    // currentPrice: { $gt: 500 }
+    // priceUpdatedAt: {
+    //     $lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    // }
   }).sort({
     timesRequiredInRecipes: "desc",
   });
