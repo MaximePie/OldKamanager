@@ -1,4 +1,4 @@
-import {Header, StyledRessources} from "./styles";
+import {Header, StyledRessources, StyledButton as Button} from "./styles";
 import {useQuery} from "react-query";
 import {Resource as ResourceType} from "../../../types/Resource"
 import Resource from "../../molecules/Resource/Resource"
@@ -14,7 +14,7 @@ export default function Resources() {
   const {filters: {search}} = useContext(FilterContext);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 1;
 
   const resources = formattedResources();
   const slicedResources = resources.slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -23,15 +23,15 @@ export default function Resources() {
     <>
       <Filters/>
       <div>
+        <Button onClick={() => setCurrentPage(currentPage => currentPage - 1)}>
+          &lt;
+        </Button>
+        <Button onClick={() => setCurrentPage(currentPage => currentPage + 1)}>
+          &gt;
+        </Button>
         <span>
           Page : {currentPage}
         </span>
-        <button onClick={() => setCurrentPage(currentPage => currentPage - 1)}>
-          &lt;
-        </button>
-        <button onClick={() => setCurrentPage(currentPage => currentPage + 1)}>
-          &gt;
-        </button>
       </div>
       <StyledRessources>
         <Header>
@@ -39,7 +39,7 @@ export default function Resources() {
           <span>Nom</span>
           <span>Prix</span>
         </Header>
-        {slicedResources.slice(0, 10).map((resource) => (
+        {slicedResources.slice(0, pageSize).map((resource) => (
           <Resource key={resource._id} data={resource}/>
         ))}
       </StyledRessources>

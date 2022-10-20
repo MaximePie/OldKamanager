@@ -6,11 +6,12 @@ import ClickableResource from "../../molecules/ClickableResource/ClickableResour
 
 export default function ShoppingDisplay(props: ShoppingDisplayProps) {
 
-  const {items, total, onHide, estimatedIncome, benefit, slots, ratio} = props;
+  const {items, total, onHide, estimatedIncome, benefit, slots, ratio, onCancelActionClick} = props;
 
   return (
     <div>
       <Details>
+        <button onClick={() => onCancelActionClick()}>Wups</button>
         <p>Dépenses : {total} k</p>
         <p>Revenus : {estimatedIncome} k</p>
         <p>Bénéfices : {benefit} k ({ratio}%)</p>
