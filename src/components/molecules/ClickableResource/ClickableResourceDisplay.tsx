@@ -1,6 +1,6 @@
 import React from "react";
 import {StyledClickableResource, Image, Quantity, Container, StyledButton as Button, Price} from "./styles";
-
+import Trend from "../../atoms/Trend/Trend";
 import {ClickableResourceDisplayProps} from "./types";
 import {StyledChart as Chart} from "../Gear/styles";
 
@@ -21,6 +21,7 @@ export default function ClickableResourceDisplay(props: ClickableResourceDisplay
     shouldPricesBeDisplayed,
     resourcePrices,
     backgroundIntensity,
+    trend,
   } = props;
 
   return (
@@ -47,11 +48,22 @@ export default function ClickableResourceDisplay(props: ClickableResourceDisplay
             type="line"
           />
         )}
+        {trend && (
+          <Trend value={trend}/>
+        )}
       </StyledClickableResource>
       {onQuantityChange && (
         <Button onClick={() => onQuantityChange((quantity || 0) + 1)}>+</Button>
       )}
     </Container>
   )
+
+  /**
+   * Compare last and pre-last elements prices of the ressourcePrices
+   * If the last price is 20% higher, return "ascending"
+   */
+  function calculateTrend() {
+
+  }
 }
 

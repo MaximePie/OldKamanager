@@ -7,6 +7,7 @@ import {Props as ChartProps} from "react-apexcharts";
 import {useQuery} from "react-query";
 import {GearPriceRequest} from "../Gear/types";
 import {getFromServer} from "../../../services/server";
+import {Trend} from "../../../types/Trend";
 
 export default function ClickableResource(props: ClickableResourceProps) {
   const {quantity, name, imgUrl, isBig, onHide, onQuantityChange, price, timesRequiredInRecipes} = props;
@@ -15,9 +16,10 @@ export default function ClickableResource(props: ClickableResourceProps) {
 
   const totalPrice = price * (quantity || 1);
 
-  let resourcePrices: ChartProps | undefined  = undefined;
+  let pricesHistory: ChartProps | undefined  = undefined;
+  let pricesTrend: Trend = undefined;
   if (priceData?.prices) {
-    resourcePrices = {
+    pricesHistory = {
       options: {
         chart: {
           type: "line",
@@ -37,6 +39,7 @@ export default function ClickableResource(props: ClickableResourceProps) {
         data: priceData.prices?.map(({price}: GearPrice) => price),
       }],
     }
+    pricesTrend = trendFromPricesHistory(priceData);
   }
 
   const backgroundColor = timesRequiredInRecipes > 2555 ? 1 : timesRequiredInRecipes / 255;
@@ -54,11 +57,37 @@ export default function ClickableResource(props: ClickableResourceProps) {
       totalPrice={totalPrice}
       onMouseEnter={() => showPrices()}
       onMouseLeave={() => hidePrices()}
-      shouldPricesBeDisplayed={shouldPricesBeDisplayed && priceData?.prices?.length !== 0 && resourcePrices !== undefined}
-      resourcePrices={resourcePrices}
+      shouldPricesBeDisplayed={shouldPricesBeDisplayed && priceData?.prices?.length !== 0 && pricesHistory !== undefined}
+      resourcePrices={pricesHistory}
+      trend={pricesTrend}
       backgroundIntensity={backgroundColor}
     />
   )
+
+  /**
+   * Calculate the trend of the prices history
+   *
+   * @param priceData - Object containing the prices history
+   * @returns "ascending" | "descending" | "stable" | undefined
+   */
+  function trendFromPricesHistory(priceData: GearPriceRequest): Trend {
+    const prices = priceData.prices;
+    if (prices.length > 2) {
+      const lastPrice = prices[prices.length - 1].price;
+      const preLastPrice = prices[prices.length - 2].price;
+      // If lastPrice is 20% higher than preLastPrice, return "ascending"
+      if (lastPrice > preLastPrice * 1.2) {
+        return "ascending";
+      }
+      // If lastPrice is 20% lower than preLastPrice, return "descending"
+      if (lastPrice < preLastPrice * 0.8) {
+        return "descending";
+      }
+      // Else, return "stable"
+      return "stable";
+    }
+    return "stable";
+  }
 
   /**
    * Remove Oe symbols and replace them by "oe" string
