@@ -94,11 +94,20 @@ export default function ClickableResource(props: ClickableResourceProps) {
    * @param draftName - String the name of the resource
    */
   function normalizedName(draftName: string) {
-    return draftName
-      .replaceAll('Œil', 'il')
-      .replaceAll('Œuf', 'uf')
-      .replaceAll('Cœur', 'ur')
-      ;
+    // create a list of objects with the name of the resource and the normalizedName
+    const resourcesToNormalize = [
+      {name: "Œil", normalizedName: "il"},
+      {name: "Œuf", normalizedName: "uf"},
+      {name: "Cœur", normalizedName: "ur"},
+      {name: "Plumes de Tofu", normalizedName: "plume de tofu"},
+    ]
+
+    let result = draftName;
+    resourcesToNormalize.forEach(({name, normalizedName}) => {
+      result = result.replaceAll(name, normalizedName);
+    })
+
+    return result;
   }
 
 
