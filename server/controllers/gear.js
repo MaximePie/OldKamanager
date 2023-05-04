@@ -21,6 +21,15 @@ export async function get(request, response) {
     shouldDisplayOldPrices
   } = request.query;
   let remaining = 0;
+  const formattedSearch = new RegExp(
+      (decodeURIComponent(search)
+              .replace(/,*$/, '')
+              .replaceAll(', ', ',')
+              .replaceAll(',', '|')
+              .toLowerCase()
+              .trimStart()
+      ),
+      'i');
 
   const query = Gear.find({
     // currentPrice: {
@@ -35,7 +44,7 @@ export async function get(request, response) {
       $lte: parseInt(maxLevel) || 200,
     },
 
-    name: new RegExp(decodeURIComponent(search).toLowerCase(), 'i'),
+    name: formattedSearch,
   })
 
 
