@@ -26,3 +26,4 @@ package-lock.json
 yarn.lock
 .env
 /server/.env
+!/server/.env
