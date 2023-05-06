@@ -1,4 +1,4 @@
-import {Field as TextField, StyledFilters, Control as FormControl, Group as FormGroup} from "./styles";
+import {Field as TextField, StyledFilters, Control as FormControl, Group as FormGroup, FormatButton} from "./styles";
 import {useContext} from "react";
 import {FilterContext} from "../../../contexts/FilterContext";
 import {Checkbox, FormControlLabel, InputLabel, MenuItem, OutlinedInput, Select} from "@mui/material";
@@ -41,6 +41,14 @@ export default function Filters(props: FiltersProps) {
   return (
     <StyledFilters>
       <FormControl>
+        {isGearsPage && (
+          <FormatButton
+            onClick={formatSearchForQuery}
+            title="Retire les [] et sépare les objets par des virgules. [a][b] => a,b"
+          >
+            🪄
+          </FormatButton>
+        )}
         <TextField
           id="standard-basic"
           label="Rechercher ..."
@@ -68,7 +76,9 @@ export default function Filters(props: FiltersProps) {
       </FormControl>
       {isGearsPage && (
         <>
-          <FormControl>
+          <FormControl
+            sx={{m: 1, width: 120}}
+          >
             <TextField
               id="standard-basic"
               label="Niveau min"
@@ -78,7 +88,9 @@ export default function Filters(props: FiltersProps) {
             />
           </FormControl>
 
-          <FormControl>
+          <FormControl
+            sx={{m: 1, width: 120}}
+          >
             <TextField
               id="standard-basic"
               label="Niveau max"
@@ -87,7 +99,7 @@ export default function Filters(props: FiltersProps) {
               value={maxLevel}
             />
           </FormControl>
-          <FormControl sx={{m: 1, width: 300}}>
+          <FormControl sx={{m: 1, width: 120}}>
             <InputLabel id="demo-multiple-name-label">Catégorie</InputLabel>
             <Select
               labelId="demo-multiple-name-label"
@@ -155,6 +167,24 @@ export default function Filters(props: FiltersProps) {
       )}
     </StyledFilters>
   )
+
+  /**
+   * Remove the [ and ] from the search string, replace closing bracket by a comma
+   * Trim ending spaces and remove last comma
+   * @returns {string}
+   */
+  function formatSearchForQuery() {
+    let formattedSearch = search
+      .replaceAll('[', '')
+      .replaceAll(']', ',')
+      .trimEnd()
+
+    if (formattedSearch.endsWith(',')) {
+      formattedSearch = formattedSearch.slice(0, -1);
+    }
+
+    updateSearch(formattedSearch);
+  }
 
   function onTypesChange(values: string | string[]) {
     const newValues = typeof values === 'string' ? [values] : values;

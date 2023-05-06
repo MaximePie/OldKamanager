@@ -1,4 +1,4 @@
-import {FormControl, FormGroup, TextField} from "@mui/material"
+import {Button, FormControl, FormGroup, TextField} from "@mui/material"
 import styled from "styled-components"
 
 export const StyledFilters = styled.div`
@@ -8,8 +8,15 @@ export const StyledFilters = styled.div`
   align-items: center;
 `
 
+export const FormatButton = styled(Button)`
+  position: absolute !important;
+  top: -2.5em;
+  left: -1.75em;
+  width: 0
+`
+
 export const Field = styled(TextField)`
-  max-width: 100px !important;
+  max-width: 200px !important;
 `
 export const Control = styled(FormControl)`
 
