@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import {StyledResourceProps} from "./types";
+import {Button} from "@mui/material";
 
 
 export const StyledResource = styled.div<StyledResourceProps>`
@@ -13,8 +14,4 @@ export const StyledResource = styled.div<StyledResourceProps>`
 
 export const Image = styled.img`
   width: 100%;
-`
-
-export const Name = styled.input`
-  width: 200px;
 `

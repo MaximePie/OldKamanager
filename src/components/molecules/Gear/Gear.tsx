@@ -13,7 +13,8 @@ import {
   PriceInput,
   StyledChart as Chart,
   PricesActions,
-  PendingPriceIcon
+  PendingPriceIcon,
+  SaleButton
 } from "./styles";
 import {ChangeEvent, useEffect, useRef, useState} from "react";
 import {Component as ComponentType, Gear as GearType} from "../../../types/Gear"
@@ -23,6 +24,7 @@ import {copyToClipboard} from "../../../services/clipboard";
 import {playSuccessSound} from "../../../services/sounds";
 import {useQuery, useQueryClient} from "react-query";
 import {GearPrice} from "../../../types/GearPrice";
+import {hasBeenRecentlyUpdated} from "../../../services/gears";
 
 export default function Gear(props: GearProps) {
   const {data, afterUpdate} = props;
@@ -86,9 +88,6 @@ export default function Gear(props: GearProps) {
     }
   }
 
-  // If has been updated in the last 5 min, set to true
-  const hasPriceBeenUpdated = lastPriceUpdatedAt && new Date(lastPriceUpdatedAt).getTime() > Date.now() - 5 * 60 * 1000;
-
   useEffect(onUpdate, [draftProduct])
   useEffect(onUpdateAfterRefetch, [data]);
 
@@ -103,6 +102,12 @@ export default function Gear(props: GearProps) {
           onComponentQuantityUpdate={onComponentQuantityUpdate}
         />
       }
+      <SaleButton
+        title="Décoche 'possédé', 'coche 'en vente'"
+        onClick={setToSale}
+      >
+        💰
+      </SaleButton>
       <Image src={imgUrl} alt={'icon'} referrerPolicy="no-referrer"/>
       <Name
         onClick={() => copyToClipboard(name)}
@@ -140,7 +145,7 @@ export default function Gear(props: GearProps) {
         onChange={(event) => updateWaitingList(parseInt(event.target.value, 10))}
       />
       <Price>
-        {!hasPriceBeenUpdated && <PendingPriceIcon/>}
+        {!hasBeenRecentlyUpdated(lastPriceUpdatedAt) && <PendingPriceIcon/>}
         <PriceInput
           type="number"
           name="currentPrice"
@@ -166,6 +171,18 @@ export default function Gear(props: GearProps) {
       </Recipe>
     </StyledGear>
   )
+
+  /**
+   * Uncheck 'isInInventory' and check 'isInMarket'
+   * Triggers when we click on the 'sale' button
+   */
+  function setToSale() {
+    setDraftProduct({
+          ...draftProduct,
+          isInInventory: false,
+          isInMarket: true,
+    })
+  }
 
   /**
    * If the gear has been updated from longer than 1 month, the price should be updated

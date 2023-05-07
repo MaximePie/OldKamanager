@@ -1,9 +1,8 @@
 import {ResourceProps} from "./types";
 import {StyledResource} from "./styles";
-import {ChangeEvent, useEffect, useState} from "react";
+import {ChangeEvent, useEffect, useRef, useState} from "react";
 import {Resource as ResourceType} from "../../../types/Resource"
 import {postOnServer} from "../../../services/server";
-import {Button} from "@mui/material";
 import ClickableResource from "../ClickableResource/ClickableResource";
 
 Resource.defaultProps = {
@@ -19,9 +18,30 @@ export default function Resource(props: ResourceProps) {
   const [draftName, setDraftName] = useState(name);
   const [draftPrice, setDraftPrice] = useState(currentPrice);
 
+  const priceRef = useRef(currentPrice);
+
   let isMounted = true;
 
   useEffect(onUpdate, [product])
+
+  // Add an event listener to rise price of +20% if +, -20% if -
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === '+') {
+        priceRef.current = Math.round(priceRef.current * 1.2);
+        setDraftPrice(priceRef.current);
+      }
+      else if (event.key === '-') {
+        priceRef.current = Math.round(priceRef.current * 0.8);
+        setDraftPrice(priceRef.current);
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [])
+
 
   return (
     <StyledResource isEditing={isEditing}>
@@ -38,6 +58,7 @@ export default function Resource(props: ResourceProps) {
         : <span>{draftName}</span>
       }
       <input
+        title="+ pour augmenter de 20%, - pour diminuer de 20%"
         type="number"
         name="currentPrice"
         onChange={(event) => handlePriceChange(event.target.value)}

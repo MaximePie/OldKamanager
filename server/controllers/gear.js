@@ -69,9 +69,12 @@ export async function get(request, response) {
 
   })
 
-  if (shouldDisplayOldPrices === 'true') {
-    query.findOldPrices();
-  }
+  /**
+   * Disabled for now, we handle it in the front
+   */
+  // if (shouldDisplayOldPrices === 'true') {
+  //   query.findOldPrices();
+  // }
 
   if (shouldHideToBeCrafted === 'true') {
     query.findWithoutToBeCrafted();

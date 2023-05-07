@@ -11,6 +11,7 @@ export const StyledGear = styled.div`
   justify-content: center;
   grid-template-columns: ${CraftColumnsGridDimensions};
   grid-column-gap: 1em;
+  position: relative;
 `
 
 export const StyledButton = styled(Button)`
@@ -102,6 +103,13 @@ export const StyledChart = styled(Chart)`
   border: solid;
   z-index: 1;
 `
+
+export const SaleButton = styled(Button)`
+position: absolute !important;
+  top: 0;
+  left: 1.5em;
+`
+
 
 function componentBackground({isEmpty, isTooHigh}: ComponentProps) {
   let background = 'initial';

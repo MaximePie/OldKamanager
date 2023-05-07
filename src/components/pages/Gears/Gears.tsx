@@ -4,12 +4,17 @@ import {Header, StyledGears, ColumnHeader, Bulker, StyledButton as Button} from 
 import Gear from "../../molecules/Gear/Gear";
 import {Gear as GearType} from "../../../types/Gear";
 import Filters from "../../molecules/Filters/Filters"
-import {Filters as FiltersType} from "./types"
+import {Filters as FrontFilters} from "./types"
 import {ChangeEvent, useContext, useState} from "react";
-import {FilterContext} from "../../../contexts/FilterContext";
-import {bulkUpdate, BulkUpdateParameters, getBulkUpdateParametersPropertyNames} from "../../../services/gears";
+import {FilterContext, Filters as FiltersType} from "../../../contexts/FilterContext";
+import {
+    bulkUpdate,
+    BulkUpdateParameters,
+    getBulkUpdateParametersPropertyNames,
+    hasBeenRecentlyUpdated
+} from "../../../services/gears";
 
-const initialFilters: FiltersType = {
+const initialFrontFilters: FrontFilters = {
     craft: "off"
 }
 
@@ -25,7 +30,7 @@ enum sortTypes {
 }
 
 export default function Gears() {
-    const [frontFilters, setFrontFilters] = useState(initialFilters as FiltersType);
+    const [frontFilters, setFrontFilters] = useState(initialFrontFilters as FrontFilters);
     const [sort, setSort] = useState<sortTypes>(sortTypes.NONE);
     const queryClient = useQueryClient();
     const {filters} = useContext(FilterContext);
@@ -38,6 +43,7 @@ export default function Gears() {
 
     const gears = data?.gears || [];
     const remaining = data?.remaining || 0
+    const filteredGears = getFilteredGears(gears, filters);
 
     return (
         <div>
@@ -78,7 +84,7 @@ export default function Gears() {
                     </span>
                 </Bulker>
                 {isLoading ? <p>ça charge les cocos</p> :
-                    sortedGears().map((gear) => (
+                    sortedGears(filteredGears).map((gear) => (
                             <Gear key={Object.values(gear).join('')} data={gear} afterUpdate={refetch}/>
                         )
                     )
@@ -158,6 +164,18 @@ export default function Gears() {
     }
 
     /**
+     * If "Update old prices is checked", only display gears that have an old price
+     * @param gears
+     * @param filters
+     */
+    function getFilteredGears(gears: GearType[], filters: FiltersType) {
+        if (filters.shouldDisplayOldPrices) {
+            return gears.filter(({lastPriceUpdatedAt}) => !hasBeenRecentlyUpdated(lastPriceUpdatedAt))
+        }
+        return gears;
+    }
+
+    /**
      * Sort by benefit and wanted status
      *
      * Priority :
@@ -166,7 +184,7 @@ export default function Gears() {
      * < 0 => A->B
      * > 0 => B-> A
      */
-    function sortedGears() {
+    function sortedGears(gears: GearType[]) {
         return gears.sort((gear1, gear2) => {
 
             if (frontFilters.craft === 'asc') {

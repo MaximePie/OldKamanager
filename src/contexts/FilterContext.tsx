@@ -1,6 +1,6 @@
 import {createContext, ReactNode, useEffect, useState} from "react";
 
-type FiltersType = {
+export type Filters = {
   isInShopHidden: boolean,
   isPricelessOnly: boolean,
   isInInventory: boolean,
@@ -16,7 +16,7 @@ type FiltersType = {
   minCurrentPrice: number,
 }
 
-const InitialFilter = {
+const InitialFilter: Filters = {
   search: '',
   types: [] as string[],
   minLevel: 1,
@@ -56,7 +56,7 @@ type FilterContextProviderProps = {
 
 export default function FilterContextProvider(props: FilterContextProviderProps) {
   const {children} = props;
-  const [filters, setFilters] = useState<FiltersType>(InitialFilter);
+  const [filters, setFilters] = useState<Filters>(InitialFilter);
 
   return (
     <FilterContext.Provider value={{

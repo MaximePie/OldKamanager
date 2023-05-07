@@ -26,3 +26,12 @@ export function getBulkUpdateParametersPropertyNames(): string[] {
 export async function bulkUpdate(gearIds: ObjectId[], parameters: BulkUpdateParameters) {
     return postOnServer('/gears/bulkUpdate/', {gearIds, parameters});
 }
+
+/**
+ * Check if the gear has been recently updated (1 hour)
+ * @param lastPriceUpdatedAt
+ */
+export function hasBeenRecentlyUpdated(lastPriceUpdatedAt: Date): boolean {
+    // If has been updated in the last hour
+    return lastPriceUpdatedAt && new Date(lastPriceUpdatedAt).getTime() > Date.now() - 3600000;
+}

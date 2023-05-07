@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {StyledClickableResource, Image, Quantity, Container, StyledButton as Button, Price} from "./styles";
 import Trend from "../../atoms/Trend/Trend";
 import {ClickableResourceDisplayProps} from "./types";
