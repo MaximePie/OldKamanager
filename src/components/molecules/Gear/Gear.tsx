@@ -12,9 +12,10 @@ import {
   Price,
   PriceInput,
   StyledChart as Chart,
-  PricesActions
+  PricesActions,
+  PendingPriceIcon
 } from "./styles";
-import {ChangeEvent, useEffect, useState} from "react";
+import {ChangeEvent, useEffect, useRef, useState} from "react";
 import {Component as ComponentType, Gear as GearType} from "../../../types/Gear"
 import {getFromServer, postOnServer, putOnServer} from "../../../services/server";
 import RecipeForm from "../RecipeForm/RecipeForm";
@@ -43,7 +44,8 @@ export default function Gear(props: GearProps) {
     isInInventory,
     onWishList,
     toBeCrafted,
-    isInMarket
+    isInMarket,
+    lastPriceUpdatedAt
   } = draftProduct;
   const [isInitialized, setInitialisationState] = useState<boolean>(false);
 
@@ -83,6 +85,9 @@ export default function Gear(props: GearProps) {
       ],
     }
   }
+
+  // If has been updated in the last 5 min, set to true
+  const hasPriceBeenUpdated = lastPriceUpdatedAt && new Date(lastPriceUpdatedAt).getTime() > Date.now() - 5 * 60 * 1000;
 
   useEffect(onUpdate, [draftProduct])
   useEffect(onUpdateAfterRefetch, [data]);
@@ -135,12 +140,14 @@ export default function Gear(props: GearProps) {
         onChange={(event) => updateWaitingList(parseInt(event.target.value, 10))}
       />
       <Price>
+        {!hasPriceBeenUpdated && <PendingPriceIcon/>}
         <PriceInput
           type="number"
           name="currentPrice"
           onChange={(event) => onDraftPriceChange(event.target.value)}
           onBlur={update}
           value={draftPrice}
+          shouldBeUpdated={shouldPriceBeUpdated(lastPriceUpdatedAt)}
         />
         <PricesActions>
           <Button onClick={lowerPrice}>-20%</Button>
@@ -159,6 +166,15 @@ export default function Gear(props: GearProps) {
       </Recipe>
     </StyledGear>
   )
+
+  /**
+   * If the gear has been updated from longer than 1 month, the price should be updated
+   * @param lastPriceUpdatedAt
+   */
+  function shouldPriceBeUpdated(lastPriceUpdatedAt: Date) {
+    const oneMonthInMilliseconds = 1000 * 60 * 60 * 24 * 30;
+    return Date.now() - new Date(lastPriceUpdatedAt).getTime() > oneMonthInMilliseconds;
+  }
 
   function showPrices() {
     setPricesDisplayState(true);

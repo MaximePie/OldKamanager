@@ -29,7 +29,8 @@ type Gear = {
   toBeCrafted: number,
   onWishList: number,
 
-  recipe: Component[]
+  recipe: Component[],
+  lastPriceUpdatedAt: Date,
 }
 
 export type {Gear, Component};

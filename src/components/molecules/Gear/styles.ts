@@ -18,8 +18,23 @@ export const StyledButton = styled(Button)`
   padding: 0 !important;
 `
 
-export const PriceInput = styled.input`
+type PriceInputProps = {
+  shouldBeUpdated: boolean,
+}
+
+export const PendingPriceIcon = styled.span`
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  background-color: #ffbb73;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+`
+
+export const PriceInput = styled.input<PriceInputProps>`
   width: 70px;
+  background-color: ${({shouldBeUpdated}) => shouldBeUpdated ? '#ffbb73' : ''};
 `
 export const PricesActions = styled.span`
   display: flex;
@@ -55,6 +70,8 @@ export const ComponentImage = styled.img`
 export const Price = styled.div`
   display: flex;
   height: 24px;
+  
+  position: relative;
 `
 
 export const Recipe = styled.div`

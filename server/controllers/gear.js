@@ -269,7 +269,7 @@ export async function update(request, response) {
     })
 
 
-    if (currentPrice !== gear.currentPrice) {
+    if (parseInt(currentPrice) !== gear.currentPrice) {
       await gear.updatePricesHistory();
       await gear.updateLastPriceDate();
     }

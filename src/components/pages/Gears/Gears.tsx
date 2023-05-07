@@ -18,8 +18,15 @@ type CraftsQuery = {
     remaining: number,
 }
 
+enum sortTypes {
+    NONE,
+    NAME_ASC,
+    NAME_DESC,
+}
+
 export default function Gears() {
     const [frontFilters, setFrontFilters] = useState(initialFilters as FiltersType);
+    const [sort, setSort] = useState<sortTypes>(sortTypes.NONE);
     const queryClient = useQueryClient();
     const {filters} = useContext(FilterContext);
     const types = filters.types?.toString();
@@ -39,7 +46,7 @@ export default function Gears() {
             <StyledGears>
                 <Header>
                     <span>Image</span>
-                    <span>Nom</span>
+                    <span onClick={updateSortByName}>Nom {getNameSortingIcon()}</span>
                     <span>Niveau</span>
                     <span>Vendus</span>
                     <span>En vente</span>
@@ -79,6 +86,43 @@ export default function Gears() {
             </StyledGears>
         </div>
     )
+
+    /**
+     * Return the appropriate symbol for the sorting icon depending on the current sort state
+     */
+    function getNameSortingIcon() {
+        const {NONE, NAME_ASC, NAME_DESC} = sortTypes;
+        switch (sort) {
+            case NAME_ASC:
+                return ' ^';
+            case NAME_DESC:
+                return ' v';
+            case NONE:
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Update the sort by name.
+     * Toggle 1 : A->Z
+     * Toggle 2 : Z->A
+     * Toggle 3 : Off
+     */
+    function updateSortByName() {
+        switch (sort) {
+            case sortTypes.NONE:
+                setSort(sortTypes.NAME_ASC);
+                break;
+            case sortTypes.NAME_ASC:
+                setSort(sortTypes.NAME_DESC);
+                break;
+            case sortTypes.NAME_DESC:
+            default:
+                setSort(sortTypes.NONE);
+                break;
+        }
+    }
 
     /**
      * Update the given field to the desired amount
@@ -131,6 +175,14 @@ export default function Gears() {
 
             if (frontFilters.craft === 'desc') {
                 return gear1.craftingPrice - gear2.craftingPrice;
+            }
+
+            if (sort === sortTypes.NAME_ASC) {
+                return gear1.name.localeCompare(gear2.name);
+            }
+
+            if (sort === sortTypes.NAME_DESC) {
+                return gear2.name.localeCompare(gear1.name);
             }
 
             return 1;
