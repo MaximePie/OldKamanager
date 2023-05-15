@@ -8,6 +8,7 @@ export type Filters = {
   shouldShowToBeCraftedOnly: boolean,
   shouldDisplayOldPrices: boolean,
   shouldDisplayWishlist: boolean,
+  shouldDisplayFreeTierContent: boolean,
   search: string,
   limit: number,
   types: string[],
@@ -29,6 +30,7 @@ const InitialFilter: Filters = {
   shouldShowToBeCraftedOnly: false,
   shouldDisplayOldPrices: false,
   shouldDisplayWishlist: false,
+  shouldDisplayFreeTierContent: false,
   minCurrentPrice: 0,
 }
 
@@ -47,6 +49,7 @@ const FilterContext = createContext({
   updateToBeCraftedState: (shouldShowToBeCraftedOnly: boolean) => {},
   updateOldPricesDisplayState: (shouldDisplayOldPrices: boolean) => {},
   updateWishListState: (shouldDisplayWishlist: boolean) => {},
+  updateFreeTierContentDisplayState: (shouldDisplayFreeTierContent: boolean) => {},
   updateMinCurrentPrice: (minCurrentPrice: number) => {},
 });
 
@@ -73,11 +76,24 @@ export default function FilterContextProvider(props: FilterContextProviderProps)
       updateToBeCraftedState,
       updateOldPricesDisplayState,
       updateWishListState,
+      updateFreeTierContentDisplayState,
       filters,
     }}>
       {children}
     </FilterContext.Provider>
   )
+
+  /**
+   * Update the state of the display of FREE TIER CONTENT ONLY or not
+   * @param shouldDisplayFreeTierContent boolean, whether we want to display only free tier content or not
+   * True if we want to display only free tier content, false otherwise
+   */
+  function updateFreeTierContentDisplayState(shouldDisplayFreeTierContent: boolean) {
+    setFilters({
+      ...filters,
+      shouldDisplayFreeTierContent
+    })
+  }
 
   /**
    * Update the wishlist state, setting whether if we should only display items on waiting list,

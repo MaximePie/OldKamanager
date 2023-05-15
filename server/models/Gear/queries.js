@@ -26,9 +26,9 @@ const queries = {
       //   $gt: 30000,
       // },
 
-      level : {
-        $gt: 60
-      },
+      // level : {
+      //   $gt: 60
+      // },
 
       toBeCrafted: {
         $eq: 0,
@@ -45,9 +45,9 @@ const queries = {
         $eq: false,
       },
 
-      currentPrice: {
-        $gt: 20000,
-      },
+      // currentPrice: {
+      //   $gt: 20000,
+      // },
     })
   },
 
@@ -89,7 +89,7 @@ const queries = {
       // },
 
       lastPriceUpdatedAt: {
-        $lt: moment().subtract(7, 'day'),
+        $lt: moment().subtract(2, 'd'),
       }
     })
     .sort({

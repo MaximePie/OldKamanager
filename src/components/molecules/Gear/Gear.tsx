@@ -14,7 +14,8 @@ import {
   StyledChart as Chart,
   PricesActions,
   PendingPriceIcon,
-  SaleButton
+  SaleButton,
+  SoldButton
 } from "./styles";
 import {ChangeEvent, useEffect, useRef, useState} from "react";
 import {Component as ComponentType, Gear as GearType} from "../../../types/Gear"
@@ -106,8 +107,16 @@ export default function Gear(props: GearProps) {
         title="Décoche 'possédé', 'coche 'en vente'"
         onClick={setToSale}
       >
-        💰
+        ⏳
       </SaleButton>
+      {isInMarket && (
+        <SoldButton
+          title="Décoche 'en vente', vend un objet et rachète"
+          onClick={setSold}
+        >
+          💰
+        </SoldButton>
+      )}
       <Image src={imgUrl} alt={'icon'} referrerPolicy="no-referrer"/>
       <Name
         onClick={() => copyToClipboard(name)}
@@ -171,6 +180,19 @@ export default function Gear(props: GearProps) {
       </Recipe>
     </StyledGear>
   )
+
+  /**
+   * Uncheck 'isInMarket', add 1 to sold quantity and add 1 to 'toBeCrafted'
+   */
+  function setSold() {
+    setDraftProduct({
+      ...draftProduct,
+      sold: sold + 1,
+      isInMarket: false,
+      toBeCrafted: toBeCrafted + 1,
+    })
+    playSuccessSound();
+  }
 
   /**
    * Uncheck 'isInInventory' and check 'isInMarket'

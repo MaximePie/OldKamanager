@@ -59,7 +59,6 @@ const methods = {
   async onRecipePriceChange() {
     this.craftingPrice = await this.calculateCraftingPrice();
     this.ratio = this.currentPrice / this.craftingPrice;
-    this.lastPriceUpdatedAt = Date.now();
     this.save();
   },
 

@@ -107,7 +107,13 @@ export const StyledChart = styled(Chart)`
 export const SaleButton = styled(Button)`
 position: absolute !important;
   top: 0;
-  left: 1.5em;
+  left: 2em;
+`
+
+export const SoldButton = styled(Button)`
+position: absolute !important;
+  top: 0;
+  left: -2em;
 `
 
 

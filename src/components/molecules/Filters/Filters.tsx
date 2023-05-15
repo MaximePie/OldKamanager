@@ -20,6 +20,7 @@ export default function Filters(props: FiltersProps) {
     updateToBeCraftedState,
     updateWishListState,
     updateOldPricesDisplayState,
+    updateFreeTierContentDisplayState,
     filters,
   } = useContext(FilterContext);
 
@@ -35,7 +36,8 @@ export default function Filters(props: FiltersProps) {
     shouldHideToBeCrafted,
     shouldShowToBeCraftedOnly,
     shouldDisplayOldPrices,
-    shouldDisplayWishlist
+    shouldDisplayWishlist,
+    shouldDisplayFreeTierContent,
   } = filters;
 
   return (
@@ -156,12 +158,20 @@ export default function Filters(props: FiltersProps) {
               <Checkbox
                 checked={shouldShowToBeCraftedOnly}
                 onChange={(event) => updateToBeCraftedState(event.target.checked)}
-              />} label="Crafter"/>
+              />} label="Crafter"
+            />
             <FormControlLabel control={
               <Checkbox
                 checked={shouldDisplayOldPrices}
                 onChange={(event) => updateOldPricesDisplayState(event.target.checked)}
-              />} label="Ré-estimer les vieux items"/>
+              />} label="Ré-estimer les vieux items"
+            />
+            <FormControlLabel control={
+              <Checkbox
+                checked={shouldDisplayFreeTierContent}
+                onChange={(event) => updateFreeTierContentDisplayState(event.target.checked)}
+              />} label="Non abonné"
+            />
           </FormGroup>
         </>
       )}

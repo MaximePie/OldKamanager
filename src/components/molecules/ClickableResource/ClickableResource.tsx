@@ -100,6 +100,7 @@ export default function ClickableResource(props: ClickableResourceProps) {
       {name: "Œuf", normalizedName: "uf"},
       {name: "Cœur", normalizedName: "ur"},
       {name: "Plumes de Tofu", normalizedName: "plume de tofu"},
+      {name: "Fémur du Chafer Rōnin", normalizedName: "Fémur du Chafer R"},
     ]
 
     let result = draftName;

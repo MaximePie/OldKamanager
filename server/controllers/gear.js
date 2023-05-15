@@ -72,9 +72,9 @@ export async function get(request, response) {
   /**
    * Disabled for now, we handle it in the front
    */
-  // if (shouldDisplayOldPrices === 'true') {
-  //   query.findOldPrices();
-  // }
+  if (shouldDisplayOldPrices === 'true') {
+    query.findOldPrices();
+  }
 
   if (shouldHideToBeCrafted === 'true') {
     query.findWithoutToBeCrafted();
@@ -230,6 +230,7 @@ export async function update(request, response) {
     const parsedCurrentPrice = parseInt(currentPrice);
     const ratio = currentPrice / craftingPrice;
     const gear = await Gear.findById(_id)
+    console.log("Updating gear " + gear.name);
     if (sold > gear.sold) {
       let gearPrice = await GearPrice.findOneAndUpdate({
         GearId: request.params._id,
@@ -255,7 +256,6 @@ export async function update(request, response) {
       gearPrice.updateRatio();
     }
 
-
     const updatedGear = await Gear.findByIdAndUpdate(_id, {
       currentPrice: parsedCurrentPrice || 0,
       sold,
@@ -271,12 +271,11 @@ export async function update(request, response) {
       response.json({e})
     })
 
-
     if (parseInt(currentPrice) !== gear.currentPrice) {
       await gear.updatePricesHistory();
+      console.log("Updating last price date");
       await gear.updateLastPriceDate();
     }
-
     response.json({
       gear: updatedGear,
     })

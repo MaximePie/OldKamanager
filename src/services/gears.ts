@@ -28,10 +28,10 @@ export async function bulkUpdate(gearIds: ObjectId[], parameters: BulkUpdatePara
 }
 
 /**
- * Check if the gear has been recently updated (1 hour)
+ * Check if the gear has been recently updated (7 days)
  * @param lastPriceUpdatedAt
  */
 export function hasBeenRecentlyUpdated(lastPriceUpdatedAt: Date): boolean {
     // If has been updated in the last hour
-    return lastPriceUpdatedAt && new Date(lastPriceUpdatedAt).getTime() > Date.now() - 3600000;
+    return lastPriceUpdatedAt && new Date(lastPriceUpdatedAt).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000;
 }

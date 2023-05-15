@@ -6,12 +6,11 @@ import {Gear as GearType} from "../../../types/Gear";
 import Filters from "../../molecules/Filters/Filters"
 import {Filters as FrontFilters} from "./types"
 import {ChangeEvent, useContext, useState} from "react";
-import {FilterContext, Filters as FiltersType} from "../../../contexts/FilterContext";
+import {FilterContext,} from "../../../contexts/FilterContext";
 import {
     bulkUpdate,
     BulkUpdateParameters,
     getBulkUpdateParametersPropertyNames,
-    hasBeenRecentlyUpdated
 } from "../../../services/gears";
 
 const initialFrontFilters: FrontFilters = {
@@ -36,6 +35,11 @@ export default function Gears() {
     const {filters} = useContext(FilterContext);
     const types = filters.types?.toString();
 
+    /**
+     * Front managed filters
+     */
+    const { shouldDisplayFreeTierContent } = filters;
+
     const {data, isLoading} = useQuery<CraftsQuery>(['gears', {
         ...filters,
         types,
@@ -43,10 +47,12 @@ export default function Gears() {
 
     const gears = data?.gears || [];
     const remaining = data?.remaining || 0
-    const filteredGears = getFilteredGears(gears, filters);
+
+    const filteredGears = shouldDisplayFreeTierContent ? gears.filter(gear => !gear.recipe.some(({level}) => level > 60) && gear.level <= 60) : gears;
 
     return (
         <div>
+            <p>Détecter la vente et envoyer une requête vers l'api (créer un script)</p>
             <Filters isGearsPage={true}/>
             <p>({remaining} Restants)</p>
             <StyledGears>
@@ -161,18 +167,6 @@ export default function Gears() {
             default:
                 return 'off';
         }
-    }
-
-    /**
-     * If "Update old prices is checked", only display gears that have an old price
-     * @param gears
-     * @param filters
-     */
-    function getFilteredGears(gears: GearType[], filters: FiltersType) {
-        if (filters.shouldDisplayOldPrices) {
-            return gears.filter(({lastPriceUpdatedAt}) => !hasBeenRecentlyUpdated(lastPriceUpdatedAt))
-        }
-        return gears;
     }
 
     /**
