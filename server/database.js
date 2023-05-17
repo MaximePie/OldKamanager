@@ -14,4 +14,3 @@ const params = {
 };
 
 export const url = `mongodb+srv://${params.username}:${params.password}@${params.host}/${params.databaseName}?retryWrites=true&w=majority`;
-

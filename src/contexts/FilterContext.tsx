@@ -9,6 +9,7 @@ export type Filters = {
   shouldDisplayOldPrices: boolean,
   shouldDisplayWishlist: boolean,
   shouldDisplayFreeTierContent: boolean,
+  shouldDisplayToSellItemsOnly: boolean,
   search: string,
   limit: number,
   types: string[],
@@ -31,6 +32,7 @@ const InitialFilter: Filters = {
   shouldDisplayOldPrices: false,
   shouldDisplayWishlist: false,
   shouldDisplayFreeTierContent: false,
+  shouldDisplayToSellItemsOnly: false,
   minCurrentPrice: 0,
 }
 
@@ -50,6 +52,7 @@ const FilterContext = createContext({
   updateOldPricesDisplayState: (shouldDisplayOldPrices: boolean) => {},
   updateWishListState: (shouldDisplayWishlist: boolean) => {},
   updateFreeTierContentDisplayState: (shouldDisplayFreeTierContent: boolean) => {},
+  updateToSellItemsDisplayState: (shouldDisplayToSellItemsOnly: boolean) => {},
   updateMinCurrentPrice: (minCurrentPrice: number) => {},
 });
 
@@ -77,11 +80,23 @@ export default function FilterContextProvider(props: FilterContextProviderProps)
       updateOldPricesDisplayState,
       updateWishListState,
       updateFreeTierContentDisplayState,
+      updateToSellItemsDisplayState,
       filters,
     }}>
       {children}
     </FilterContext.Provider>
   )
+
+  /**
+   * Display items currently in market and hope we find them
+   * @param shouldDisplayToSellItemsOnly
+   */
+  function updateToSellItemsDisplayState(shouldDisplayToSellItemsOnly: boolean) {
+    setFilters({
+      ...filters,
+      shouldDisplayToSellItemsOnly
+    })
+  }
 
   /**
    * Update the state of the display of FREE TIER CONTENT ONLY or not

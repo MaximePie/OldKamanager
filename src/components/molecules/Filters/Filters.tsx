@@ -21,6 +21,7 @@ export default function Filters(props: FiltersProps) {
     updateWishListState,
     updateOldPricesDisplayState,
     updateFreeTierContentDisplayState,
+    updateToSellItemsDisplayState,
     filters,
   } = useContext(FilterContext);
 
@@ -38,6 +39,7 @@ export default function Filters(props: FiltersProps) {
     shouldDisplayOldPrices,
     shouldDisplayWishlist,
     shouldDisplayFreeTierContent,
+    shouldDisplayToSellItemsOnly,
   } = filters;
 
   return (
@@ -74,6 +76,7 @@ export default function Filters(props: FiltersProps) {
           <MenuItem value={25}>25</MenuItem>
           <MenuItem value={50}>50</MenuItem>
           <MenuItem value={100}>100</MenuItem>
+          <MenuItem value={200}>200</MenuItem>
         </Select>
       </FormControl>
       {isGearsPage && (
@@ -151,6 +154,11 @@ export default function Filters(props: FiltersProps) {
                 checked={shouldHideToBeCrafted}
                 onChange={(event) => updateHideToBeCraftedState(event.target.checked)}
               />} label="Trouver des items à crafter"/>
+            <FormControlLabel control={
+              <Checkbox
+                checked={shouldDisplayToSellItemsOnly}
+                onChange={(event) => updateToSellItemsDisplayState(event.target.checked)}
+              />} label="Objets en vente"/>
           </FormGroup>
 
           <FormGroup>

@@ -81,6 +81,20 @@ const queries = {
     })
   },
 
+  /**
+   * Return only items in market
+   */
+  findToSellItems() {
+    return this.where({
+      isInMarket: {
+        $eq: true,
+      },
+    })
+    .sort({
+        level: 'desc',
+    })
+  },
+
   findOldPrices() {
     return this.where({
 

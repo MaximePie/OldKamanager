@@ -43,7 +43,9 @@ export default function Gears() {
     const {data, isLoading} = useQuery<CraftsQuery>(['gears', {
         ...filters,
         types,
-    }], fetchGears)
+    }], fetchGears, {
+        refetchInterval: 10000,
+    })
 
     const gears = data?.gears || [];
     const remaining = data?.remaining || 0

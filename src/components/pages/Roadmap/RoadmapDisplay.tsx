@@ -18,6 +18,10 @@ export default function RoadmapDisplay(props: RoadmapDisplayProps) {
       <ul>
         <li>Mettre à jour les chances de vente une fois que l'on ajoute un success au currentPrice.</li>
       </ul>
+
+      <ul>
+        <li>Attribuer des gears à des persos</li>
+      </ul>
     </StyledRoadmap>
   )
 }

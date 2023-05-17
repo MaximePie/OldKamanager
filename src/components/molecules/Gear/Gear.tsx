@@ -31,7 +31,10 @@ export default function Gear(props: GearProps) {
   const {data, afterUpdate} = props;
   const [product, setProduct] = useState<GearType>(data);
   const [draftProduct, setDraftProduct] = useState<GearType>(product);
-  const {data: priceData} = useQuery<GearPriceRequest>(`gearPrices/${product._id}`, fetchPrices)
+  const {data: priceData, refetch} = useQuery<GearPriceRequest>(`gearPrices/${product._id}`, fetchPrices, {
+    refetchOnWindowFocus: false,
+    enabled: false,
+  })
   const queryClient = useQueryClient();
 
   const {
@@ -57,6 +60,7 @@ export default function Gear(props: GearProps) {
   const [draftPrice, setDraftPrice] = useState<number | ''>(currentPrice === 0 ? '' : currentPrice);
 
   const [shouldPricesBeDisplayed, setPricesDisplayState] = useState(false);
+  let showPricesInterval: number | undefined = undefined;
 
   let isMounted = true;
   let gearPrices = undefined;
@@ -216,10 +220,14 @@ export default function Gear(props: GearProps) {
   }
 
   function showPrices() {
-    setPricesDisplayState(true);
+    showPricesInterval  = window.setTimeout(() => {
+      refetch();
+      setPricesDisplayState(true);
+    }, 1000);
   }
 
   function hidePrices() {
+    window.clearTimeout(showPricesInterval);
     setPricesDisplayState(false);
   }
 

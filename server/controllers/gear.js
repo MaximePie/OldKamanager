@@ -18,7 +18,8 @@ export async function get(request, response) {
     shouldHideToBeCrafted,
     shouldShowToBeCraftedOnly,
     shouldDisplayWishlist,
-    shouldDisplayOldPrices
+    shouldDisplayOldPrices,
+    shouldDisplayToSellItemsOnly,
   } = request.query;
   let remaining = 0;
   const formattedSearch = new RegExp(
@@ -69,9 +70,10 @@ export async function get(request, response) {
 
   })
 
-  /**
-   * Disabled for now, we handle it in the front
-   */
+  if (shouldDisplayToSellItemsOnly === 'true') {
+    query.findToSellItems();
+  }
+
   if (shouldDisplayOldPrices === 'true') {
     query.findOldPrices();
   }
