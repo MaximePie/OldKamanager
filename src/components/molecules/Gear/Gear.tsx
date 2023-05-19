@@ -17,7 +17,7 @@ import {
   SaleButton,
   SoldButton
 } from "./styles";
-import {ChangeEvent, useEffect, useRef, useState} from "react";
+import {ChangeEvent, useEffect, useMemo, useRef, useState} from "react";
 import {Component as ComponentType, Gear as GearType} from "../../../types/Gear"
 import {getFromServer, postOnServer, putOnServer} from "../../../services/server";
 import RecipeForm from "../RecipeForm/RecipeForm";
@@ -64,38 +64,39 @@ export default function Gear(props: GearProps) {
 
   let isMounted = true;
   let gearPrices = undefined;
-  if (priceData?.prices) {
-    gearPrices = {
-      options: {
-        chart: {
-          type: "line",
-          animations: {
-            speed: 400,
-          }
-        },
-        stroke: {
-          curve: "smooth",
-        },
-        xaxis: {
-          categories: []
-        },
-      },
-      series: [
-        {
-          name: '',
-          data: priceData.prices?.map(({price}: GearPrice) => price),
-        },
-        {
-          name: '',
-          data: priceData.prices?.map(({craftingPrice}: GearPrice) => craftingPrice),
-        },
-      ],
-    }
-  }
 
   useEffect(onUpdate, [draftProduct])
   useEffect(onUpdateAfterRefetch, [data]);
 
+    gearPrices = useMemo(() => {
+      if (!priceData?.prices) return undefined;
+      return {
+        options: {
+          chart: {
+            type: "line",
+            animations: {
+              speed: 400,
+            }
+          },
+          stroke: {
+            curve: "smooth",
+          },
+          xaxis: {
+            categories: []
+          },
+        },
+        series: [
+          {
+            name: '',
+            data: priceData.prices?.map(({price}: GearPrice) => price),
+          },
+          {
+            name: '',
+            data: priceData.prices?.map(({craftingPrice}: GearPrice) => craftingPrice),
+          },
+        ],
+      }
+    }, [priceData?.prices])
   return (
     <StyledGear>
       {isRecipeModalOpen &&

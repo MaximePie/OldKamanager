@@ -91,7 +91,7 @@ const queries = {
       },
     })
     .sort({
-        level: 'desc',
+        price: 'asc',
     })
   },
 
@@ -107,7 +107,7 @@ const queries = {
       }
     })
     .sort({
-      ratio: 'asc'
+      currentPrice: 'desc'
     })
   },
 

@@ -12,7 +12,10 @@ import {Trend} from "../../../types/Trend";
 export default function ClickableResource(props: ClickableResourceProps) {
   const {quantity, name, imgUrl, isBig, onHide, onQuantityChange, price, timesRequiredInRecipes} = props;
   const [shouldPricesBeDisplayed, setPricesDisplayState] = useState(false);
-  const {data: priceData} = useQuery<GearPriceRequest>(`resourcePrices/${name}`, fetchPrices)
+  const {data: priceData, refetch} = useQuery<GearPriceRequest>(`resourcePrices/${name}`, fetchPrices, {
+    refetchOnWindowFocus: false,
+    enabled: false,
+  })
 
   const totalPrice = price * (quantity || 1);
 
@@ -41,6 +44,8 @@ export default function ClickableResource(props: ClickableResourceProps) {
     }
     pricesTrend = trendFromPricesHistory(priceData);
   }
+  let showPricesInterval: number | undefined = undefined;
+
 
   const backgroundColor = timesRequiredInRecipes > 2555 ? 1 : timesRequiredInRecipes / 255;
 
@@ -96,11 +101,12 @@ export default function ClickableResource(props: ClickableResourceProps) {
   function normalizedName(draftName: string) {
     // create a list of objects with the name of the resource and the normalizedName
     const resourcesToNormalize = [
+      {name: "Plumes de Tofu", normalizedName: "plume de tofu"},
+      {name: "Fémur du Chafer Rōnin", normalizedName: "Fémur du Chafer R"},
+      {name: "Jaune d'Œuf de Krokille", normalizedName: "uf de Krokille"},
       {name: "Œil", normalizedName: "il"},
       {name: "Œuf", normalizedName: "uf"},
       {name: "Cœur", normalizedName: "ur"},
-      {name: "Plumes de Tofu", normalizedName: "plume de tofu"},
-      {name: "Fémur du Chafer Rōnin", normalizedName: "Fémur du Chafer R"},
     ]
 
     let result = draftName;
@@ -115,12 +121,15 @@ export default function ClickableResource(props: ClickableResourceProps) {
   function fetchPrices() {
     return getFromServer(`/resources/prices/${name}`).then(response => response.data);
   }
-
   function showPrices() {
-    setPricesDisplayState(true);
+    showPricesInterval  = window.setTimeout(() => {
+      refetch();
+      setPricesDisplayState(true);
+    }, 1000);
   }
 
   function hidePrices() {
+    window.clearTimeout(showPricesInterval);
     setPricesDisplayState(false);
   }
 

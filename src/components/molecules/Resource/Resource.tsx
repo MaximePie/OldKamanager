@@ -78,21 +78,6 @@ export default function Resource(props: ResourceProps) {
     }
   }
 
-  function addOneSoldByTen() {
-    setProduct({
-      ...product,
-      soldByTen: product.soldByTen + 1,
-    })
-  }
-
-  function addOneSoldByHundred() {
-    setProduct({
-      ...product,
-      soldByHundred: product.soldByHundred + 1,
-    })
-  }
-
-
   function onUpdate() {
 
     if (!isInitialized) {
@@ -108,12 +93,6 @@ export default function Resource(props: ResourceProps) {
     }
   }
 
-  function setWantedState(event: ChangeEvent<HTMLInputElement>) {
-    setProduct({
-      ...product,
-      [event.target.name]: event.target.checked,
-    })
-  }
 
   function update(event: ChangeEvent<HTMLInputElement>) {
     setProduct({

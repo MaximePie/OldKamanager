@@ -77,6 +77,7 @@ export default function Filters(props: FiltersProps) {
           <MenuItem value={50}>50</MenuItem>
           <MenuItem value={100}>100</MenuItem>
           <MenuItem value={200}>200</MenuItem>
+          <MenuItem value={500}>500</MenuItem>
         </Select>
       </FormControl>
       {isGearsPage && (
