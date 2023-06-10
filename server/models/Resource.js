@@ -71,6 +71,7 @@ ResourceSchema.post('save', async function (document, next) {
     await document.updatePricesHistory();
     await Gear.updateCraftingPricesAfterResourceUpdate(document.name);
     document.priceUpdatedAt = Date.now();
+    document.save();
     return next();
 })
 

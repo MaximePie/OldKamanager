@@ -11,6 +11,8 @@ type Resource = {
   timesRequiredInRecipes: number,
   isWantedForTen: boolean,
   isWantedForHundred: boolean,
+
+  priceUpdatedAt: Date,
 }
 
 export type {

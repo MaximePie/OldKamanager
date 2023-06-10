@@ -1,4 +1,4 @@
-import React, {MouseEvent, useState} from "react"
+import React, {MouseEvent, useMemo, useState} from "react"
 import ClickableResourceDisplay from "./ClickableResourceDisplay"
 import {ClickableResourceProps} from "./types";
 import {copyToClipboard} from "../../../services/clipboard";
@@ -21,29 +21,31 @@ export default function ClickableResource(props: ClickableResourceProps) {
 
   let pricesHistory: ChartProps | undefined  = undefined;
   let pricesTrend: Trend = undefined;
-  if (priceData?.prices) {
-    pricesHistory = {
-      options: {
-        chart: {
-          type: "line",
-          animations: {
-            speed: 400,
-          }
+  useMemo(() => {
+    if (priceData?.prices) {
+      pricesHistory = {
+        options: {
+          chart: {
+            type: "line",
+            animations: {
+              speed: 400,
+            }
+          },
+          stroke: {
+            curve: "smooth",
+          },
+          xaxis: {
+            categories: []
+          },
         },
-        stroke: {
-          curve: "smooth",
-        },
-        xaxis: {
-          categories: []
-        },
-      },
-      series: [{
-        name: '',
-        data: priceData.prices?.map(({price}: GearPrice) => price),
-      }],
+        series: [{
+          name: '',
+          data: priceData.prices?.map(({price}: GearPrice) => price),
+        }],
+      }
+      pricesTrend = trendFromPricesHistory(priceData);
     }
-    pricesTrend = trendFromPricesHistory(priceData);
-  }
+  }, [priceData])
   let showPricesInterval: number | undefined = undefined;
 
 
@@ -57,6 +59,7 @@ export default function ClickableResource(props: ClickableResourceProps) {
       isBig={isBig}
       onLeftClick={() => copyToClipboard(normalizedName(name))}
       onRightClick={onRightClick}
+      onMiddleClick={() => copyQuantityToClipboard(quantity)}
       onQuantityChange={onQuantityChange}
       price={price}
       totalPrice={totalPrice}
@@ -68,6 +71,16 @@ export default function ClickableResource(props: ClickableResourceProps) {
       backgroundIntensity={backgroundColor}
     />
   )
+
+  /**
+   * Copy the quantity to the clipboard on middle click
+   * @param quantity - Quantity of resources we want to use
+   */
+  function copyQuantityToClipboard(quantity: number | undefined) {
+    if (quantity) {
+      copyToClipboard(quantity.toString());
+    }
+  }
 
   /**
    * Calculate the trend of the prices history

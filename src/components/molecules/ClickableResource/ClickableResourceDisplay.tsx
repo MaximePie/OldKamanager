@@ -13,6 +13,7 @@ export default function ClickableResourceDisplay(props: ClickableResourceDisplay
     isBig,
     onRightClick,
     onLeftClick,
+    onMiddleClick,
     onQuantityChange,
     price,
     totalPrice,
@@ -33,6 +34,7 @@ export default function ClickableResourceDisplay(props: ClickableResourceDisplay
         title={`${name} (${totalPrice}k)`}
         onClick={onLeftClick}
         onContextMenu={onRightClick}
+        onAuxClick={onMiddleClick}
         isBig={isBig}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
@@ -57,13 +59,5 @@ export default function ClickableResourceDisplay(props: ClickableResourceDisplay
       )}
     </Container>
   )
-
-  /**
-   * Compare last and pre-last elements prices of the ressourcePrices
-   * If the last price is 20% higher, return "ascending"
-   */
-  function calculateTrend() {
-
-  }
 }
 

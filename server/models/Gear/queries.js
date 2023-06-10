@@ -19,12 +19,12 @@ const queries = {
    * Trouver des items à crafter
    * @memberOf Gear
    */
-  findWithoutToBeCrafted() {
+  findItemsToCraft() {
     return this.where({
 
-      // craftingPrice: {
-      //   $gt: 30000,
-      // },
+      craftingPrice: {
+        $gt: 10000,
+      },
 
       // level : {
       //   $gt: 60
@@ -91,7 +91,7 @@ const queries = {
       },
     })
     .sort({
-        price: 'asc',
+        currentPrice: 'desc',
     })
   },
 
@@ -103,7 +103,7 @@ const queries = {
       // },
 
       lastPriceUpdatedAt: {
-        $lt: moment().subtract(2, 'd'),
+        $lt: moment().subtract(7, 'd'),
       }
     })
     .sort({

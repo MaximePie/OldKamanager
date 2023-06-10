@@ -13,11 +13,14 @@ type ShoppingDisplayProps = {
   items: Component[],
   total: string,
   estimatedIncome: string,
+  savedAmount: string,
   ratio: string,
   slots: number,
   benefit: string,
   onHide: (name: string) => void,
   onCancelActionClick: () => void,
+  softHide: () => void,
+  showSoftHiddenItems: () => void,
 }
 
 export type {ShoppingDisplayProps, ShoppingProps, ShoppingQuery}

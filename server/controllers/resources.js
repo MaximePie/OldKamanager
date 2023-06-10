@@ -5,13 +5,39 @@ import ResourcePrice from '../models/ResourcePrice.js';
 import axios from "axios";
 
 export async function get(request, response) {
-  const resources = await Resource.find({
-    // priceUpdatedAt: {
-    //     $lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    // }
-  }).sort({
+  const {
+    search,
+    limit = 10,
+    shouldDisplayOldPrices,
+  } = request.query;
+
+  const formattedSearch = new RegExp(
+      (decodeURIComponent(search)
+              .replace(/,*$/, '')
+              .replaceAll(', ', ',')
+              .replaceAll(',', '|')
+              .toLowerCase()
+              .trimStart()
+      ),
+      'i');
+  const query = Resource.find({
+    name: formattedSearch,
+  }).limit(limit).sort({
     timesRequiredInRecipes: "desc",
   });
+
+  if (shouldDisplayOldPrices) {
+    query.find({
+      priceUpdatedAt: {
+            $lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        }
+    })
+  }
+
+  const resources = await query.exec();
+
+
+
   response.json(resources);
 }
 
@@ -35,16 +61,6 @@ export async function fill(request, response) {
 export async function update(request, response) {
   const {_id} = request.params;
   const {currentPrice, soldByTen, soldByHundred, isWantedForTen, isWantedForHundred, name} = request.fields;
-  // const updatedResource = await Resource.findByIdAndUpdate(_id, {
-  //   currentPrice,
-  //   soldByTen,
-  //   soldByHundred,
-  //   isWantedForTen,
-  //   isWantedForHundred,
-  //   name
-  // }, {
-  //   returnDocument: "after",
-  // })
 
   const resource = await Resource.findById(_id);
   resource.currentPrice = currentPrice;

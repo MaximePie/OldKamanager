@@ -18,25 +18,36 @@ interface IRush {
 
 const rushes: IRush[] = [
   {
-    "Number of items": 20,
-    income: 700000,
+    "Number of items": 53,
+    income: 1140850,
     times: {
-    "Bank": "2:06",
-    "Ingredients": "4:05",
-    "Crafting Done": "7:19",
-    "Sell Done": "14:22",
+    "Bank": "6:05",
+    "Ingredients": "3:54",
+    "Crafting Done": "8:39",
+    "Sell Done": "9:48",
     }
   },
   {
-    "Number of items": 14,
-    income: 239000,
+    "Number of items": 31,
+    income: 437652,
     times: {
-    "Bank": "2:06",
-    "Ingredients": "4:05",
-    "Crafting Done": "7:19",
-    "Sell Done": "14:22",
+    "Bank": "2:21",
+    "Ingredients": "3:33",
+    "Crafting Done": "3:49",
+    "Sell Done": "11:32",
     }
-  }
+  },
+  {
+    "Number of items": 0,
+    income: 0,
+    times: {
+    "Bank": "",
+    "Ingredients": "",
+    "Crafting Done": "",
+    "Sell Done": "",
+    }
+  },
+
 ]
 
 
@@ -64,14 +75,14 @@ export default function RoadmapDisplay(props: RoadmapDisplayProps) {
       <ul>
         <li>Chronométrer pour estimer le temps que ça va prendre</li>
       </ul>
-
-      <h4>Places dispos</h4>
-      <p>
-        Amulettes : 4
-        Anneaux : 3
-
-      </p>
-
+      <ul>
+        <li>Estimer le poids total</li>
+      </ul>
+      <ul>
+        <li>
+          Faire des stats sur les meilleures ventes
+        </li>
+      </ul>
       <h3>Time tracking</h3>
       <div>
         {

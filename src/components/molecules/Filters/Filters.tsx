@@ -80,6 +80,13 @@ export default function Filters(props: FiltersProps) {
           <MenuItem value={500}>500</MenuItem>
         </Select>
       </FormControl>
+
+      <FormControlLabel control={
+        <Checkbox
+          checked={shouldDisplayOldPrices}
+          onChange={(event) => updateOldPricesDisplayState(event.target.checked)}
+        />} label="Ré-estimer les vieux items"
+      />
       {isGearsPage && (
         <>
           <FormControl
@@ -168,12 +175,6 @@ export default function Filters(props: FiltersProps) {
                 checked={shouldShowToBeCraftedOnly}
                 onChange={(event) => updateToBeCraftedState(event.target.checked)}
               />} label="Crafter"
-            />
-            <FormControlLabel control={
-              <Checkbox
-                checked={shouldDisplayOldPrices}
-                onChange={(event) => updateOldPricesDisplayState(event.target.checked)}
-              />} label="Ré-estimer les vieux items"
             />
             <FormControlLabel control={
               <Checkbox

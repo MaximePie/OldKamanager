@@ -4,20 +4,22 @@ import {Resource as ResourceType} from "../../../types/Resource"
 import Resource from "../../molecules/Resource/Resource"
 
 import {getFromServer} from "../../../services/server";
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {FilterContext} from "../../../contexts/FilterContext"
 import Filters from "../../molecules/Filters/Filters";
 
 export default function Resources() {
-  const {data} = useQuery<ResourceType[]>('resources', fetchResources)
-
-  const {filters: {search}} = useContext(FilterContext);
+  const {filters} = useContext(FilterContext);
+  const {data, isLoading} = useQuery<ResourceType[]>({
+    queryKey: ['resources', filters],
+    queryFn: fetchResources,
+  })
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 1;
 
   const resources = formattedResources();
-  const slicedResources = resources.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+  const slicedResources = resources.slice((currentPage - 1) * pageSize, currentPage * pageSize).slice(0, pageSize);
 
   return (
     <>
@@ -39,28 +41,29 @@ export default function Resources() {
           <span>Nom</span>
           <span>Prix</span>
         </Header>
-        {slicedResources.slice(0, pageSize).map((resource) => (
+        {isLoading && <span>Chargement...</span>}
+        {slicedResources.map((resource) => (
           <Resource key={resource._id} data={resource}/>
         ))}
       </StyledRessources>
     </>
   )
 
-  async function fetchResources() {
-    // return axios.get('https://fr.dofus.dofapi.fr/resources').then(response => response.data);
-    return getFromServer('/resources').then(response => response.data);
+  async function fetchResources({queryKey}: any) {
+    const [, params] = queryKey;
+    const search = encodeURIComponent(params.search);
+    return getFromServer('/resources', {
+      ...params,
+      search,
+    })
+      .then(response => response.data)
   }
 
   function formattedResources(): ResourceType[] {
     if (!data) {
       return [];
     }
-
-    const filteredData = data.filter(resource => search
-      ? flattenedSearch(resource.name).includes(flattenedSearch(search))
-      : true);
-
-    return filteredData.sort((resource1) => resource1.isWantedForTen || resource1.isWantedForHundred ? -1 : 1);
+    return data.sort((resource1) => resource1.isWantedForTen || resource1.isWantedForHundred ? -1 : 1);
   }
 
   function flattenedSearch(string: string) {

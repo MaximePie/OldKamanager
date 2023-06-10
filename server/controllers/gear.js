@@ -79,7 +79,7 @@ export async function get(request, response) {
   }
 
   if (shouldHideToBeCrafted === 'true') {
-    query.findWithoutToBeCrafted();
+    query.findItemsToCraft();
   }
 
   if (isInInventory === 'true') {
@@ -232,7 +232,6 @@ export async function update(request, response) {
     const parsedCurrentPrice = parseInt(currentPrice);
     const ratio = currentPrice / craftingPrice;
     const gear = await Gear.findById(_id)
-    console.log("Updating gear " + gear.name);
     if (sold > gear.sold) {
       let gearPrice = await GearPrice.findOneAndUpdate({
         GearId: request.params._id,
@@ -275,7 +274,6 @@ export async function update(request, response) {
 
     if (parseInt(currentPrice) !== gear.currentPrice) {
       await gear.updatePricesHistory();
-      console.log("Updating last price date");
       await gear.updateLastPriceDate();
     }
     response.json({

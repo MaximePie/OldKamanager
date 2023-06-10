@@ -19,6 +19,7 @@ type ClickableResourceDisplayProps = Omit<ClickableResourceProps, '_id' | 'times
   onMouseEnter?: () => void,
   onMouseLeave?: () => void,
   onRightClick?: (event: MouseEvent<HTMLDivElement>) => void,
+  onMiddleClick?: (event: MouseEvent<HTMLDivElement>) => void,
   totalPrice: number,
   shouldPricesBeDisplayed?: boolean,
   prices?: ResourcePrice[],
