@@ -6,27 +6,23 @@ import axios from "axios";
 
 export async function get(request, response) {
   const {
-    search,
-    limit = 10,
     shouldDisplayOldPrices,
   } = request.query;
 
-  const formattedSearch = new RegExp(
-      (decodeURIComponent(search)
-              .replace(/,*$/, '')
-              .replaceAll(', ', ',')
-              .replaceAll(',', '|')
-              .toLowerCase()
-              .trimStart()
-      ),
-      'i');
-  const query = Resource.find({
-    name: formattedSearch,
-  }).limit(limit).sort({
+  // const formattedSearch = new RegExp(
+  //     (decodeURIComponent(search)
+  //             .replace(/,*$/, '')
+  //             .replaceAll(', ', ',')
+  //             .replaceAll(',', '|')
+  //             .toLowerCase()
+  //             .trimStart()
+  //     ),
+  //     'i');
+  const query = Resource.find().sort({
     timesRequiredInRecipes: "desc",
   });
 
-  if (shouldDisplayOldPrices) {
+  if (shouldDisplayOldPrices === 'true') {
     query.find({
       priceUpdatedAt: {
             $lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),

@@ -219,7 +219,7 @@ export default function Gears() {
     }
 
     function fetchGears({queryKey}: any) {
-        const [key, params] = queryKey;
+        const [, params] = queryKey;
         const search = encodeURIComponent(params.search);
         return getFromServer('/gears', {
             ...params,

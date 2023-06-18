@@ -115,6 +115,7 @@ export async function get(request, response) {
 
     query.sort({
       level: 'desc',
+      name: 'asc',
     })
   } else if (shouldDisplayOldPrices === 'false') {
     query.sort({
