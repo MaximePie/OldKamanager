@@ -33,11 +33,13 @@ import { playSuccessSound } from "../../../services/sounds";
 import { useQuery, useQueryClient } from "react-query";
 import { GearPrice } from "../../../types/GearPrice";
 import { hasBeenRecentlyUpdated } from "../../../services/gears";
+import { useResources } from "../../../contexts/RessourcesContext";
 
 export default function Gear(props: GearProps) {
   const { data, afterUpdate } = props;
   const [product, setProduct] = useState<GearType>(data);
   const [draftProduct, setDraftProduct] = useState<GearType>(product);
+  const { findResourceFromName } = useResources();
   const { data: priceData, refetch } = useQuery<GearPriceRequest>(
     `gearPrices/${product._id}`,
     fetchPrices,
@@ -121,6 +123,7 @@ export default function Gear(props: GearProps) {
           onClose={closeModal}
           onNameUpdate={onComponentNameUpdate}
           onComponentQuantityUpdate={onComponentQuantityUpdate}
+          onComponentAdd={addComponent}
         />
       )}
       <SaleButton
@@ -338,6 +341,35 @@ export default function Gear(props: GearProps) {
         };
       }
     });
+
+    setDraftProduct({
+      ...draftProduct,
+      recipe: updatedRecipes,
+    });
+  }
+
+  /**
+   * From the recipe, add a new component
+   */
+  function addComponent(name: string, quantity = 1) {
+    const component = findResourceFromName(name);
+    if (!component) {
+      alert(
+        'Impossible de trouver la ressource "' +
+          name +
+          '"' +
+          " dans la liste des ressources"
+      );
+      return;
+    }
+    const updatedRecipes: GearType["recipe"] = [
+      ...recipe,
+      {
+        ...component,
+        quantity,
+        isEmpty: false,
+      },
+    ];
 
     setDraftProduct({
       ...draftProduct,
