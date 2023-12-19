@@ -3,17 +3,22 @@ import React from "react";
 import {StyledShopping, Details} from "./styles";
 import {ShoppingDisplayProps} from "./types";
 import ClickableResource from "../../molecules/ClickableResource/ClickableResource";
+import {playSuccessSound} from "../../../services/sounds";
 
 export default function ShoppingDisplay(props: ShoppingDisplayProps) {
 
-  const {items, total, onHide, estimatedIncome, benefit, slots, ratio, onCancelActionClick, softHide, showSoftHiddenItems, savedAmount} = props;
+  const {items, total, onHide, estimatedIncome, benefit, slots, ratio, onCancelActionClick, softHide, showSoftHiddenItems, savedAmount, ingredientsCount} = props;
 
   return (
     <div>
       <Details>
         <button
+          style={{zIndex: 100}}
           title="cache l'objet, mais peut le remontrer après"
-          onClick={() => softHide()}
+          onClick={() => {
+            playSuccessSound()
+            softHide()
+          }}
         >
           soft hide
         </button>
@@ -28,6 +33,7 @@ export default function ShoppingDisplay(props: ShoppingDisplayProps) {
         <p>Revenus : {estimatedIncome} k</p>
         <p>Bénéfices : {benefit} k ({ratio}%)</p>
         <p>Slots : {slots}</p>
+        <p>Ingredients : {ingredientsCount}</p>
       </Details>
       <StyledShopping>
         {items.map(({imgUrl, quantity, name, currentPrice, timesRequiredInRecipes}) => (

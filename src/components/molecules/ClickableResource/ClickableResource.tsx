@@ -1,25 +1,38 @@
-import React, {MouseEvent, useMemo, useState} from "react"
-import ClickableResourceDisplay from "./ClickableResourceDisplay"
-import {ClickableResourceProps} from "./types";
-import {copyToClipboard} from "../../../services/clipboard";
-import {GearPrice} from "../../../types/GearPrice";
-import {Props as ChartProps} from "react-apexcharts";
-import {useQuery} from "react-query";
-import {GearPriceRequest} from "../Gear/types";
-import {getFromServer} from "../../../services/server";
-import {Trend} from "../../../types/Trend";
+import React, { MouseEvent, useMemo, useState } from "react";
+import ClickableResourceDisplay from "./ClickableResourceDisplay";
+import { ClickableResourceProps } from "./types";
+import { copyToClipboard } from "../../../services/clipboard";
+import { GearPrice } from "../../../types/GearPrice";
+import { Props as ChartProps } from "react-apexcharts";
+import { useQuery } from "react-query";
+import { GearPriceRequest } from "../Gear/types";
+import { getFromServer } from "../../../services/server";
+import { Trend } from "../../../types/Trend";
 
 export default function ClickableResource(props: ClickableResourceProps) {
-  const {quantity, name, imgUrl, isBig, onHide, onQuantityChange, price, timesRequiredInRecipes} = props;
+  const {
+    quantity,
+    name,
+    imgUrl,
+    isBig,
+    onHide,
+    onQuantityChange,
+    price,
+    timesRequiredInRecipes,
+  } = props;
   const [shouldPricesBeDisplayed, setPricesDisplayState] = useState(false);
-  const {data: priceData, refetch} = useQuery<GearPriceRequest>(`resourcePrices/${name}`, fetchPrices, {
-    refetchOnWindowFocus: false,
-    enabled: false,
-  })
+  const { data: priceData, refetch } = useQuery<GearPriceRequest>(
+    `resourcePrices/${name}`,
+    fetchPrices,
+    {
+      refetchOnWindowFocus: false,
+      enabled: false,
+    }
+  );
 
   const totalPrice = price * (quantity || 1);
 
-  let pricesHistory: ChartProps | undefined  = undefined;
+  let pricesHistory: ChartProps | undefined = undefined;
   let pricesTrend: Trend = undefined;
   useMemo(() => {
     if (priceData?.prices) {
@@ -29,27 +42,29 @@ export default function ClickableResource(props: ClickableResourceProps) {
             type: "line",
             animations: {
               speed: 400,
-            }
+            },
           },
           stroke: {
             curve: "smooth",
           },
           xaxis: {
-            categories: []
+            categories: [],
           },
         },
-        series: [{
-          name: '',
-          data: priceData.prices?.map(({price}: GearPrice) => price),
-        }],
-      }
+        series: [
+          {
+            name: "",
+            data: priceData.prices?.map(({ price }: GearPrice) => price),
+          },
+        ],
+      };
       pricesTrend = trendFromPricesHistory(priceData);
     }
-  }, [priceData])
+  }, [priceData]);
   let showPricesInterval: number | undefined = undefined;
 
-
-  const backgroundColor = timesRequiredInRecipes > 2555 ? 1 : timesRequiredInRecipes / 255;
+  const backgroundColor =
+    timesRequiredInRecipes > 2555 ? 1 : timesRequiredInRecipes / 255;
 
   return (
     <ClickableResourceDisplay
@@ -65,12 +80,16 @@ export default function ClickableResource(props: ClickableResourceProps) {
       totalPrice={totalPrice}
       onMouseEnter={() => showPrices()}
       onMouseLeave={() => hidePrices()}
-      shouldPricesBeDisplayed={shouldPricesBeDisplayed && priceData?.prices?.length !== 0 && pricesHistory !== undefined}
+      shouldPricesBeDisplayed={
+        shouldPricesBeDisplayed &&
+        priceData?.prices?.length !== 0 &&
+        pricesHistory !== undefined
+      }
       resourcePrices={pricesHistory}
       trend={pricesTrend}
       backgroundIntensity={backgroundColor}
     />
-  )
+  );
 
   /**
    * Copy the quantity to the clipboard on middle click
@@ -114,28 +133,34 @@ export default function ClickableResource(props: ClickableResourceProps) {
   function normalizedName(draftName: string) {
     // create a list of objects with the name of the resource and the normalizedName
     const resourcesToNormalize = [
-      {name: "Plumes de Tofu", normalizedName: "plume de tofu"},
-      {name: "Fémur du Chafer Rōnin", normalizedName: "Fémur du Chafer R"},
-      {name: "Jaune d'Œuf de Krokille", normalizedName: "uf de Krokille"},
-      {name: "Œil", normalizedName: "il"},
-      {name: "Œuf", normalizedName: "uf"},
-      {name: "Cœur", normalizedName: "ur"},
-    ]
+      { name: "Plumes de Tofu", normalizedName: "plume de tofu" },
+      { name: "Fémur du Chafer Rōnin", normalizedName: "Fémur du Chafer R" },
+      { name: "Jaune d'Œuf de Krokille", normalizedName: "uf de Krokille" },
+      {
+        name: "Antenne du Scarafeuille",
+        normalizedName: "antennes de Scarafeuille",
+      },
+      { name: "Poils Darits", normalizedName: "poils de Darit" },
+      { name: "Œil", normalizedName: "il" },
+      { name: "Œuf", normalizedName: "uf" },
+      { name: "Cœur", normalizedName: "ur" },
+    ];
 
     let result = draftName;
-    resourcesToNormalize.forEach(({name, normalizedName}) => {
+    resourcesToNormalize.forEach(({ name, normalizedName }) => {
       result = result.replaceAll(name, normalizedName);
-    })
+    });
 
     return result;
   }
 
-
   function fetchPrices() {
-    return getFromServer(`/resources/prices/${name}`).then(response => response.data);
+    return getFromServer(`/resources/prices/${name}`).then(
+      (response) => response.data
+    );
   }
   function showPrices() {
-    showPricesInterval  = window.setTimeout(() => {
+    showPricesInterval = window.setTimeout(() => {
       refetch();
       setPricesDisplayState(true);
     }, 1000);
@@ -145,7 +170,6 @@ export default function ClickableResource(props: ClickableResourceProps) {
     window.clearTimeout(showPricesInterval);
     setPricesDisplayState(false);
   }
-
 
   function onRightClick(event: MouseEvent<HTMLDivElement>) {
     event.preventDefault();

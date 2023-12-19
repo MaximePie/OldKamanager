@@ -22,33 +22,23 @@ const methods = {
     })
   },
 
+  /**
+   * Merge recipe and initial resources fields
+   * @returns {Promise<void>}
+   */
   formattedRecipe: async function() {
-    return await Promise.all(this.recipe.map(async ({name, quantity}) => {
-      const resource = await Resource.findOne({name})
-
-      if (resource) {
-        return {
-          ...resource?._doc,
-          quantity,
-          isEmpty: resource?.currentPrice === 0
-        };
-      }
-      else {
-        const newResource = await Resource.create({
-          name: name || 'REMPLISSEZ çA DITES-DONC !',
-          currentPrice: 0,
-          description: "Inconnue",
-          imgUrl: "haha",
-          type: "haha",
-          level: 10
-        })
-
-        return {
-          ...newResource._doc,
-          quantity,
+    const resources = await Resource.find({
+        name: {
+            $in: this.recipe.map(({name}) => name)
         }
+    })
+
+    return resources.map(resource => {
+      return {
+        ...resource._doc,
+        quantity: this.recipe.find(({name}) => name === resource.name).quantity
       }
-    }));
+    })
   },
 
   /**
@@ -58,7 +48,7 @@ const methods = {
    */
   async onRecipePriceChange() {
     this.craftingPrice = await this.calculateCraftingPrice();
-    this.ratio = this.currentPrice / this.craftingPrice;
+    this.ratio = this.currentPrice / (this.craftingPrice || 1);
     this.save();
   },
 
@@ -69,9 +59,13 @@ const methods = {
 
   calculateCraftingPrice: async function () {
     const recipe = await this.formattedRecipe();
-    return recipe.reduce((accumulator, resource) => {
+    const totalCraftingPrice = recipe.reduce((accumulator, resource) => {
       return accumulator + resource?.currentPrice * resource.quantity || 0
     }, 0);
+    if (totalCraftingPrice === 0) {
+      console.log("A problem occurred while calculating the crafting price of " + this.name + " : " + recipe);
+    }
+    return totalCraftingPrice;
   },
   updateRatio: async function () {
     this.ratio = this.currentPrice / this.craftingPrice;

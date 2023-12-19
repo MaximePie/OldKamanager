@@ -1,11 +1,10 @@
 // noinspection ES6MissingAwait
 
-import Gear from '../models/Gear/Gear.js';
+import Gear from "../models/Gear/Gear.js";
 import axios from "axios";
 import GearPrice from "../models/GearPrice.js";
 
 export async function get(request, response) {
-
   const {
     search,
     limit,
@@ -23,14 +22,14 @@ export async function get(request, response) {
   } = request.query;
   let remaining = 0;
   const formattedSearch = new RegExp(
-      (decodeURIComponent(search)
-              .replace(/,*$/, '')
-              .replaceAll(', ', ',')
-              .replaceAll(',', '|')
-              .toLowerCase()
-              .trimStart()
-      ),
-      'i');
+    decodeURIComponent(search)
+      .replace(/,*$/, "")
+      .replaceAll(", ", ",")
+      .replaceAll(",", "|")
+      .toLowerCase()
+      .trimStart(),
+    "i"
+  );
 
   const query = Gear.find({
     // currentPrice: {
@@ -46,15 +45,13 @@ export async function get(request, response) {
     },
 
     name: formattedSearch,
-  })
-
+  });
 
   // query.findWithoutTrophies();
 
-
   remaining = await Gear.count({
     type: {
-      $in: types.split(',')
+      $in: types.split(","),
     },
     currentPrice: 0,
 
@@ -66,64 +63,62 @@ export async function get(request, response) {
       $gte: parseInt(minLevel) || 1,
       $lte: parseInt(maxLevel) || 200,
     },
-    name: new RegExp(decodeURIComponent(search).toLowerCase(), 'i'),
+    name: new RegExp(decodeURIComponent(search).toLowerCase(), "i"),
+  });
 
-  })
-
-  if (shouldDisplayToSellItemsOnly === 'true') {
+  if (shouldDisplayToSellItemsOnly === "true") {
     query.findToSellItems();
   }
 
-  if (shouldDisplayOldPrices === 'true') {
+  if (shouldDisplayOldPrices === "true") {
     query.findOldPrices();
   }
 
-  if (shouldHideToBeCrafted === 'true') {
+  if (shouldHideToBeCrafted === "true") {
     query.findItemsToCraft();
   }
 
-  if (isInInventory === 'true') {
+  if (isInInventory === "true") {
     query.inInventory();
     query.sort({
-      level: 'desc',
-    })
-
+      level: "desc",
+    });
   }
 
-  if (isInShopHidden === 'true') {
+  if (isInShopHidden === "true") {
     query.withoutShop();
   }
 
-  if (isPricelessOnly === 'true') {
+  if (isPricelessOnly === "true") {
     query.pricesslessOnly();
   }
 
   if (types) {
-    query.findByTypes(types)
+    query.findByTypes(types);
   }
 
-  if (shouldDisplayWishlist === 'true') {
+  if (shouldDisplayWishlist === "true") {
     query.findWishList();
 
     query.sort({
-      level: 'desc',
-    })
+      level: "desc",
+    });
   }
 
-  if (shouldShowToBeCraftedOnly === 'true') {
+  if (shouldShowToBeCraftedOnly === "true") {
     query.findToBeCrafted();
 
     query.sort({
-      level: 'desc',
-      name: 'asc',
-    })
-  } else if (shouldDisplayOldPrices === 'false') {
+      level: "desc",
+      name: "asc",
+    });
+  } else if (shouldDisplayOldPrices === "false") {
     query.sort({
-      ratio: 'desc',
+      ratio: "desc",
       // name: 'asc',
       // ratio: 'asc',
       // level: 'asc',
-    })
+    });
     // Shattering values
     // .find({
     //   ratio: {
@@ -133,29 +128,55 @@ export async function get(request, response) {
     //     $gt: 150
     //   }
     // })
-
   }
 
   query.sort({
     isInInventory: -1,
-  })
+  });
 
   query.limit(limit);
   const gears = await query.exec();
 
   const formattedGears = await Promise.all(
-    gears.map(async gear => {
-
+    gears.map(async (gear) => {
       const recipe = await gear.formattedRecipe();
       return {
         ...gear._doc,
         recipe,
-      }
+      };
     })
-  )
+  );
   response.json({
-    gears: formattedGears.filter(({recipe}) => recipe.length > 0),
+    gears: formattedGears.filter(({ recipe }) => recipe.length > 0),
     remaining,
+  });
+}
+
+/**
+ *
+ * sold: sold + 1,
+ * isInMarket: false,
+ * toBeCrafted: toBeCrafted + 1,
+ */
+export async function sellMany(request, response) {
+  const { gearIds } = request.fields;
+  const gears = await Gear.find({
+    _id: {
+      $in: gearIds,
+    },
+  });
+
+  await Promise.all(
+    gears.map(async (gear) => {
+      gear.sold = gear.sold + 1;
+      gear.isInMarket = false;
+      gear.toBeCrafted = gear.toBeCrafted + 1;
+      await gear.save();
+    })
+  );
+
+  response.json({
+    message: "ok",
   });
 }
 
@@ -173,52 +194,58 @@ export async function updateCraftingPrices(request, response) {
       $exists: true,
       $ne: [],
     },
-  })
+  });
 
-  await Promise.all(gears.map(async gear => {
-    const craftingPrice = await gear.calculateCraftingPrice();
-    await gear.setCraftingPrice(craftingPrice);
-  }))
+  await Promise.all(
+    gears.map(async (gear) => {
+      const craftingPrice = await gear.calculateCraftingPrice();
+      await gear.setCraftingPrice(craftingPrice);
+    })
+  );
 
   response.json({
     messaage: "ok",
-  })
+  });
 }
 
+/**
+ * DANGER ZONE
+ * @param request
+ * @param response
+ * @returns {Promise<void>}
+ */
 export async function fill(request, response) {
-
-  const targetItem = "Bouclier Aerdala";
-  await Gear.deleteMany({
-    name: targetItem,
-  })
-
   const createdItems = [];
-  const {data: gears} = await axios.get('https://fr.dofus.dofapi.fr/equipments').then(response => response);
-  await Promise.all(gears.map(async gear => {
-    const {name, level, imgUrl, type, description, _id, recipe} = gear;
-    const createdItem = await Gear.create({
-      name,
-      level,
-      imgUrl,
-      type,
-      description,
-      recipe: recipe.map((object) => Object.entries(object).map(([name, values]) => {
-          return {name, quantity: values.quantity}
-        })
-      )
-    })
+  const { data: gears } = await axios
+    .get("https://fr.dofus.dofapi.fr/equipments")
+    .then((response) => response);
+  await Promise.all(
+    gears.map(async (gear) => {
+      const { name, level, imgUrl, type, description, _id, recipe } = gear;
+      const createdItem = await Gear.create({
+        name,
+        level,
+        imgUrl,
+        type,
+        description,
+        recipe: recipe.map((object) =>
+          Object.entries(object).map(([name, values]) => {
+            return { name, quantity: values.quantity };
+          })
+        ),
+      });
 
-    createdItems.push(createdItem.name)
-  }))
+      createdItems.push(createdItem.name);
+    })
+  );
 
   response.json({
     createdItems,
-  })
+  });
 }
 
 export async function update(request, response) {
-
-  const {_id} = request.params;
+  const { _id } = request.params;
   if (_id) {
     const {
       currentPrice,
@@ -228,23 +255,27 @@ export async function update(request, response) {
       recipe,
       isInMarket,
       craftingPrice,
-      onWishList
+      onWishList,
     } = request.fields.product;
     const parsedCurrentPrice = parseInt(currentPrice);
     const ratio = currentPrice / craftingPrice;
-    const gear = await Gear.findById(_id)
+    const gear = await Gear.findById(_id);
     if (sold > gear.sold) {
-      let gearPrice = await GearPrice.findOneAndUpdate({
-        GearId: request.params._id,
-        price: currentPrice,
-        craftingPrice
-      }, {
-        $inc: {
-          numberOfSuccess: true,
+      let gearPrice = await GearPrice.findOneAndUpdate(
+        {
+          GearId: request.params._id,
+          price: currentPrice,
+          craftingPrice,
         },
-      }, {
-        returnDocument: "after",
-      })
+        {
+          $inc: {
+            numberOfSuccess: true,
+          },
+        },
+        {
+          returnDocument: "after",
+        }
+      );
       if (!gearPrice) {
         gearPrice = await GearPrice.create({
           GearId: request.params._id,
@@ -253,7 +284,7 @@ export async function update(request, response) {
           recordDate: Date.now(),
           numberOfFailures: 0,
           numberOfSuccess: 1,
-        })
+        });
       }
       gearPrice.updateRatio();
     }
@@ -270,8 +301,8 @@ export async function update(request, response) {
       craftingPrice,
       ratio,
     }).catch((e) => {
-      response.json({e})
-    })
+      response.json({ e });
+    });
 
     if (parseInt(currentPrice) !== gear.currentPrice) {
       await gear.updatePricesHistory();
@@ -279,11 +310,11 @@ export async function update(request, response) {
     }
     response.json({
       gear: updatedGear,
-    })
+    });
   } else {
     response.json({
       message: "Pas de changement, ID n'est pas défini",
-    })
+    });
   }
 }
 
@@ -294,45 +325,52 @@ export async function update(request, response) {
  * @returns {Promise<void>}
  */
 export async function updateMany(request, response) {
-    const {gearIds, parameters} = request.fields;
-    const updatedGears = await Gear.updateMany({
-        _id: {
-            $in: gearIds
-        }
-    }, parameters)
-    response.json({
-        gearIds,
-        parameters,
-        updatedGears,
-    })
+  const { gearIds, parameters } = request.fields;
+  const updatedGears = await Gear.updateMany(
+    {
+      _id: {
+        $in: gearIds,
+      },
+    },
+    parameters
+  );
+  response.json({
+    gearIds,
+    parameters,
+    updatedGears,
+  });
 }
 
 export async function getPricesHistory(request, response) {
   response.json({
-    prices: await GearPrice.find({GearId: request.params._id})
-  })
+    prices: await GearPrice.find({ GearId: request.params._id }),
+  });
 }
 
 export async function failAtSelling(request, response) {
   const gear = await Gear.findById(request.params._id);
-  const {currentPrice} = gear;
-  const gearPrice = await GearPrice.findOneAndUpdate({
-    GearId: request.params._id,
-    price: currentPrice,
-  }, {
-    $inc: {
-      numberOfFailures: true,
+  const { currentPrice } = gear;
+  const gearPrice = await GearPrice.findOneAndUpdate(
+    {
+      GearId: request.params._id,
+      price: currentPrice,
     },
-  }, {
-    returnDocument: "after",
-  })
+    {
+      $inc: {
+        numberOfFailures: true,
+      },
+    },
+    {
+      returnDocument: "after",
+    }
+  );
 
   if (gearPrice) {
     gearPrice.updateRatio();
     response.json({
       message: "ok",
       gearPrice,
-    })
+    });
   } else {
     const gearPrice = await gear.updatePricesHistory();
     gearPrice.numberOfFailures = 1;
@@ -342,18 +380,17 @@ export async function failAtSelling(request, response) {
     response.json({
       message: "ok",
       gearPrice,
-    })
+    });
   }
 }
 
 export async function deletePrice(request, response) {
   await GearPrice.findByIdAndDelete(request.params._id);
 
-  response.status(200).json({message: "ok"})
+  response.status(200).json({ message: "ok" });
 }
 
 export async function swapComponents(request, response) {
-
   // const sourceName = "Peau de Gobelin";
   const sourceName = "Étoffe de Fantôme Pandore";
   const targetName = "Sabot de Gliglicérin";
@@ -361,23 +398,26 @@ export async function swapComponents(request, response) {
   const gears = await Gear.find({
     recipe: {
       $elemMatch: {
-        name: sourceName
-      }
-    }
-  })
+        name: sourceName,
+      },
+    },
+  });
 
-  await Promise.all(gears.map(async gear => {
+  await Promise.all(
+    gears.map(async (gear) => {
+      gear.recipe = gear.recipe.map((element) => {
+        const { name } = element;
+        return name !== sourceName
+          ? element
+          : {
+              ...element,
+              name: targetName,
+            };
+      });
 
-    gear.recipe = gear.recipe.map(element => {
-      const {name} = element;
-      return name !== sourceName ? element : {
-        ...element,
-        name: targetName,
-      };
+      await gear.save();
     })
+  );
 
-    await gear.save();
-  }))
-
-  response.json(gears.map(({name, recipe}) => ({name, recipe})));
+  response.json(gears.map(({ name, recipe }) => ({ name, recipe })));
 }

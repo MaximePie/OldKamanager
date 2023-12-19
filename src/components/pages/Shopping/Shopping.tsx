@@ -22,6 +22,7 @@ export default function Shopping() {
   const income = data?.estimatedIncome || 0;
   const slots = data?.slots || 0;
   const benefit = income - total;
+  const ingredientsCount = items.length;
 
   const ratio = Math.round(income / total * 100)
 
@@ -51,6 +52,7 @@ export default function Shopping() {
       onCancelActionClick={cancelLastAction}
       softHide={softHideFirstItem}
       showSoftHiddenItems={showSoftHiddenItems}
+      ingredientsCount={ingredientsCount.toString()}
     />
   )
 

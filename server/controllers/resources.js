@@ -70,10 +70,6 @@ export async function update(request, response) {
 
   await resource.save();
 
-  // updatedResource.updatePricesHistory();
-  //
-  // Gear.updateCraftingPricesAfterResourceUpdate(updatedResource.name);
-
   response.json({
     updatedResource: resource,
   })

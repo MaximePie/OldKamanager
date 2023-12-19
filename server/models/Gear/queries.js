@@ -4,7 +4,7 @@ const queries = {
   pricesslessOnly() {
     return this.where({
       currentPrice: 0,
-    })
+    });
   },
 
   withoutShop() {
@@ -12,7 +12,7 @@ const queries = {
       isInMarket: {
         $eq: false,
       },
-    })
+    });
   },
 
   /**
@@ -21,10 +21,9 @@ const queries = {
    */
   findItemsToCraft() {
     return this.where({
-
-      craftingPrice: {
-        $gt: 10000,
-      },
+      // craftingPrice: {
+      //   $gt: 10000,
+      // },
 
       // level : {
       //   $gt: 60
@@ -48,23 +47,23 @@ const queries = {
       // currentPrice: {
       //   $gt: 20000,
       // },
-    })
+    });
   },
 
   findWithoutTrophies() {
     return this.where({
       type: {
-        $ne: "Trophée"
-      }
-    })
+        $ne: "Trophée",
+      },
+    });
   },
 
   findToBeCrafted() {
     return this.where({
       toBeCrafted: {
         $gt: 0,
-      }
-    })
+      },
+    });
   },
 
   /**
@@ -77,8 +76,7 @@ const queries = {
       onWishList: {
         $gt: 0,
       },
-
-    })
+    });
   },
 
   /**
@@ -89,41 +87,38 @@ const queries = {
       isInMarket: {
         $eq: true,
       },
-    })
-    .sort({
-        currentPrice: 'desc',
-    })
+    }).sort({
+      currentPrice: "desc",
+    });
   },
 
   findOldPrices() {
     return this.where({
-
       // craftingPrice: {
       //   $gt: 50000
       // },
 
       lastPriceUpdatedAt: {
-        $lt: moment().subtract(7, 'd'),
-      }
-    })
-    .sort({
-      currentPrice: 'desc'
-    })
+        $lt: moment().subtract(28, "d"),
+      },
+    }).sort({
+      currentPrice: "desc",
+    });
   },
 
   inInventory() {
     return this.where({
       isInInventory: true,
-    })
+    });
   },
 
   findByTypes(types) {
     return this.where({
       type: {
-        $in: types.split(',')
-      }
-    })
+        $in: types.split(","),
+      },
+    });
   },
-}
+};
 
 export default queries;

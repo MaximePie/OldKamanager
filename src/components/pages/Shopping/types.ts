@@ -17,6 +17,7 @@ type ShoppingDisplayProps = {
   ratio: string,
   slots: number,
   benefit: string,
+  ingredientsCount: string,
   onHide: (name: string) => void,
   onCancelActionClick: () => void,
   softHide: () => void,

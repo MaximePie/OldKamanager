@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import {
   get,
   fill,
@@ -7,23 +7,23 @@ import {
   updateCraftingPrices,
   getPricesHistory,
   failAtSelling,
-  deletePrice, updateMany
-} from '../controllers/gear.js';
-import Gear from "../models/Gear/Gear.js";
-import moment from "moment";
+  deletePrice,
+  updateMany,
+  sellMany,
+} from "../controllers/gear.js";
 
 const router = express.Router();
 
-router.get('/', get);
-router.get('/fill', fill);
-router.get('/swapComponents', swapComponents);
-router.get('/updateCraftingPrices', updateCraftingPrices);
-router.post('/bulkUpdate', updateMany);
-router.post('/update/:_id', update);
-router.put('/fail/:_id', failAtSelling);
-router.get('/prices/:_id', getPricesHistory);
-router.delete('/prices/:_id', deletePrice);
+router.get("/", get);
+router.get("/swapComponents", swapComponents);
+router.get("/updateCraftingPrices", updateCraftingPrices);
+router.post("/bulkUpdate", updateMany);
+router.post("/sellMany", sellMany);
+router.post("/update/:_id", update);
+router.put("/fail/:_id", failAtSelling);
+router.get("/prices/:_id", getPricesHistory);
+router.delete("/prices/:_id", deletePrice);
 
-
-
+// DANGER ZONE
+router.get("/fill", fill);
 export default router;
