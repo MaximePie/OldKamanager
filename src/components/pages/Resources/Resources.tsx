@@ -1,16 +1,11 @@
 import { Header, StyledRessources, StyledButton as Button } from "./styles";
-import { useQuery } from "react-query";
-import { Resource as ResourceType } from "../../../types/Resource";
 import Resource from "../../molecules/Resource/Resource";
 
-import { getFromServer } from "../../../services/server";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { FilterContext } from "../../../contexts/FilterContext";
 import Filters from "../../molecules/Filters/Filters";
-import { useResources } from "../../../contexts/RessourcesContext";
+import { useResourcesContext } from "../../../contexts/RessourcesContext";
 
 export default function Resources() {
-  const { resources, isLoading, page, setPage } = useResources();
+  const { filteredResources, isLoading, page, setPage } = useResourcesContext();
 
   return (
     <>
@@ -27,7 +22,7 @@ export default function Resources() {
           <span>Prix</span>
         </Header>
         {isLoading && <span>Chargement...</span>}
-        {resources.map((resource) => (
+        {filteredResources.slice(0, 100).map((resource) => (
           <Resource key={resource._id} data={resource} />
         ))}
       </StyledRessources>

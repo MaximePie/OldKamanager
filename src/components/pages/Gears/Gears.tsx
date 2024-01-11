@@ -59,7 +59,7 @@ export default function Gears() {
     ],
     fetchGears,
     {
-      refetchInterval: 10000,
+      refetchOnWindowFocus: false,
     }
   );
 
@@ -67,12 +67,8 @@ export default function Gears() {
   const remaining = data?.remaining || 0;
 
   const filteredGears = shouldDisplayFreeTierContent
-    ? gears.filter(
-        (gear) =>
-          !gear.recipe.some(({ level }) => level > 60) && gear.level <= 60
-      )
+    ? gears.filter((gear) => isFreeTier(gear))
     : gears;
-
   return (
     <div>
       <p>
@@ -84,6 +80,7 @@ export default function Gears() {
         <Header>
           <span>Image</span>
           <span onClick={updateSortByName}>Nom {getNameSortingIcon()}</span>
+          <span>Brisage %</span>
           <span>Niveau</span>
           <span>Vendus</span>
           <span>En vente</span>
@@ -109,6 +106,7 @@ export default function Gears() {
           >
             💰
           </Button>
+          <span></span>
           <span></span>
           <span></span>
           <span></span>
@@ -284,4 +282,7 @@ export default function Gears() {
       search,
     }).then((response) => response.data);
   }
+}
+export function isFreeTier(gear: GearType): unknown {
+  return !gear.recipe.some(({ level }) => level > 60) && gear.level <= 60;
 }

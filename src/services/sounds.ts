@@ -1,4 +1,5 @@
 import successSound from "./success.mp3";
+import clickSound from "./click.mp3";
 
 /**
  * I use this file to play a sound to commit various actions
@@ -6,7 +7,12 @@ import successSound from "./success.mp3";
  */
 
 const success = new Audio(successSound);
+const click = new Audio(clickSound);
 
 export function playSuccessSound() {
   success.play();
+}
+
+export function playClickSound() {
+  click.play();
 }

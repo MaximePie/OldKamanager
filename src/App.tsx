@@ -8,30 +8,35 @@ import Shopping from "./components/pages/Shopping/Shopping";
 import React from "react";
 import Stats from "./components/pages/Stats/Stats";
 import { ResourcesProvider } from "./contexts/RessourcesContext";
+import { DebugContextProvider } from "./contexts/DebugContext";
+import { Workshop } from "./components/pages/Workshop";
 
 function App() {
   return (
     <BrowserRouter>
-      <FilterContextProvider>
-        <ResourcesProvider>
-          <div
-            style={{
-              fontFamily: "'Roboto', sans-serif",
-            }}
-          >
-            <Navbar />
-            <div>
-              <Routes>
-                <Route element={<Resources />} path={"/"} />
-                <Route element={<Gears />} path={"/craft"} />
-                <Route element={<Shopping />} path={"/shopping"} />
-                <Route element={<Roadmap />} path={"/roadmap"} />
-                <Route element={<Stats />} path={"/stats"} />
-              </Routes>
+      <DebugContextProvider>
+        <FilterContextProvider>
+          <ResourcesProvider>
+            <div
+              style={{
+                fontFamily: "'Roboto', sans-serif",
+              }}
+            >
+              <Navbar />
+              <div>
+                <Routes>
+                  <Route element={<Resources />} path={"/"} />
+                  <Route element={<Workshop />} path={"/workshop"} />
+                  <Route element={<Gears />} path={"/craft"} />
+                  <Route element={<Shopping />} path={"/shopping"} />
+                  <Route element={<Roadmap />} path={"/roadmap"} />
+                  <Route element={<Stats />} path={"/stats"} />
+                </Routes>
+              </div>
             </div>
-          </div>
-        </ResourcesProvider>
-      </FilterContextProvider>
+          </ResourcesProvider>
+        </FilterContextProvider>
+      </DebugContextProvider>
     </BrowserRouter>
   );
 }

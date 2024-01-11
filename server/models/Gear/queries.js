@@ -94,10 +94,6 @@ const queries = {
 
   findOldPrices() {
     return this.where({
-      // craftingPrice: {
-      //   $gt: 50000
-      // },
-
       lastPriceUpdatedAt: {
         $lt: moment().subtract(28, "d"),
       },

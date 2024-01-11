@@ -8,6 +8,8 @@ import { useQuery } from "react-query";
 import { GearPriceRequest } from "../Gear/types";
 import { getFromServer } from "../../../services/server";
 import { Trend } from "../../../types/Trend";
+import { Debug } from "../Debug/Debug";
+import { useDebugContext } from "../../../contexts/DebugContext";
 
 export default function ClickableResource(props: ClickableResourceProps) {
   const {
@@ -20,6 +22,7 @@ export default function ClickableResource(props: ClickableResourceProps) {
     price,
     timesRequiredInRecipes,
   } = props;
+  const { addDebugMessage } = useDebugContext();
   const [shouldPricesBeDisplayed, setPricesDisplayState] = useState(false);
   const { data: priceData, refetch } = useQuery<GearPriceRequest>(
     `resourcePrices/${name}`,
@@ -66,41 +69,55 @@ export default function ClickableResource(props: ClickableResourceProps) {
   const backgroundColor =
     timesRequiredInRecipes > 2555 ? 1 : timesRequiredInRecipes / 255;
 
-  return (
-    <ClickableResourceDisplay
-      quantity={quantity === 0 ? undefined : quantity}
-      name={name}
-      imgUrl={imgUrl}
-      isBig={isBig}
-      onLeftClick={() => copyToClipboard(normalizedName(name))}
-      onRightClick={onRightClick}
-      onMiddleClick={() => copyQuantityToClipboard(quantity)}
-      onQuantityChange={onQuantityChange}
-      price={price}
-      totalPrice={totalPrice}
-      onMouseEnter={() => showPrices()}
-      onMouseLeave={() => hidePrices()}
-      shouldPricesBeDisplayed={
-        shouldPricesBeDisplayed &&
-        priceData?.prices?.length !== 0 &&
-        pricesHistory !== undefined
-      }
-      resourcePrices={pricesHistory}
-      trend={pricesTrend}
-      backgroundIntensity={backgroundColor}
-    />
-  );
-
   /**
    * Copy the quantity to the clipboard on middle click
    * @param quantity - Quantity of resources we want to use
    */
-  function copyQuantityToClipboard(quantity: number | undefined) {
+  const copyQuantityToClipboard = (quantity: number | undefined) => {
     if (quantity) {
       copyToClipboard(quantity.toString());
     }
-  }
 
+    addDebugMessage("Copied quantity to clipboard : " + quantity + " " + name);
+  };
+
+  const copyNameToClipboard = (name: string) => {
+    copyToClipboard(name);
+    addDebugMessage("Copied name to clipboard : " + name);
+  };
+
+  const removeFromList = (event: MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (onHide) {
+      addDebugMessage("Removed " + name + " from list");
+      onHide(name);
+    }
+  };
+
+  return (
+    <>
+      <ClickableResourceDisplay
+        quantity={quantity === 0 ? undefined : quantity}
+        name={name}
+        imgUrl={imgUrl}
+        isBig={isBig}
+        onLeftClick={() => copyNameToClipboard(normalizedName(name))}
+        onRightClick={removeFromList}
+        onMiddleClick={() => copyQuantityToClipboard(quantity)}
+        onQuantityChange={onQuantityChange}
+        price={price}
+        totalPrice={totalPrice}
+        shouldPricesBeDisplayed={
+          shouldPricesBeDisplayed &&
+          priceData?.prices?.length !== 0 &&
+          pricesHistory !== undefined
+        }
+        resourcePrices={pricesHistory}
+        trend={pricesTrend}
+        backgroundIntensity={backgroundColor}
+      />
+    </>
+  );
   /**
    * Calculate the trend of the prices history
    *
@@ -139,6 +156,10 @@ export default function ClickableResource(props: ClickableResourceProps) {
       {
         name: "Antenne du Scarafeuille",
         normalizedName: "antennes de Scarafeuille",
+      },
+      {
+        name: "Sang du Vampire",
+        normalizedName: "sang de Vampire",
       },
       { name: "Poils Darits", normalizedName: "poils de Darit" },
       { name: "Œil", normalizedName: "il" },

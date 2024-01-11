@@ -1,0 +1,27 @@
+.craftingPrice {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.income {
+  font-size: 0.6em;
+  position: absolute;
+  bottom: -1em;
+}
+
+.positive {
+  color: lime;
+}
+
+.negative {
+  color: red;
+}
+
+.yellow {
+  color: rgb(148, 211, 0);
+}
+
+.orange {
+  color: rgb(255, 187, 0);
+}

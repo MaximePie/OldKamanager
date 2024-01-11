@@ -33,13 +33,18 @@ import { playSuccessSound } from "../../../services/sounds";
 import { useQuery, useQueryClient } from "react-query";
 import { GearPrice } from "../../../types/GearPrice";
 import { hasBeenRecentlyUpdated } from "../../../services/gears";
-import { useResources } from "../../../contexts/RessourcesContext";
+import { useResourcesContext } from "../../../contexts/RessourcesContext";
+import { isFreeTier } from "../../pages/Gears/Gears";
+import styles from "./Gear.module.scss";
+import { OutdatedInput } from "../../atoms/OutdatedInput";
+import { Earnings } from "../../atoms/Earnings";
+import { useResourcesApi } from "../../../hooks/useRessource/useRessourceApi";
 
 export default function Gear(props: GearProps) {
   const { data, afterUpdate } = props;
   const [product, setProduct] = useState<GearType>(data);
   const [draftProduct, setDraftProduct] = useState<GearType>(product);
-  const { findResourceFromName } = useResources();
+  const { findResourceFromName } = useResourcesContext();
   const { data: priceData, refetch } = useQuery<GearPriceRequest>(
     `gearPrices/${product._id}`,
     fetchPrices,
@@ -48,27 +53,30 @@ export default function Gear(props: GearProps) {
       enabled: false,
     }
   );
+
+  const { ratio, craftingPrice } = data;
+
   const queryClient = useQueryClient();
 
   const {
     _id,
-    imgUrl,
     name,
     currentPrice,
     sold,
     level,
     recipe,
-    craftingPrice,
-    ratio,
     isInInventory,
     onWishList,
     toBeCrafted,
     isInMarket,
     lastPriceUpdatedAt,
+    brisage,
   } = draftProduct;
   const [isInitialized, setInitialisationState] = useState<boolean>(false);
 
   const [isRecipeModalOpen, setRecipeModalState] = useState(false);
+
+  const { createNewResource } = useResourcesApi();
 
   const [draftPrice, setDraftPrice] = useState<number | "">(
     currentPrice === 0 ? "" : currentPrice
@@ -82,6 +90,10 @@ export default function Gear(props: GearProps) {
 
   useEffect(onUpdate, [draftProduct]);
   useEffect(onUpdateAfterRefetch, [data]);
+
+  const isGearFreeTier = useMemo(() => {
+    return isFreeTier(product);
+  }, [product]);
 
   gearPrices = useMemo(() => {
     if (!priceData?.prices) return undefined;
@@ -140,7 +152,7 @@ export default function Gear(props: GearProps) {
           💰
         </SoldButton>
       )}
-      <Image src={imgUrl} alt={"icon"} referrerPolicy="no-referrer" />
+      <Image src={""} alt={"icon"} referrerPolicy="no-referrer" />
       <Name
         onClick={() => copyToClipboard(name)}
         onMouseEnter={() => showPrices()}
@@ -158,7 +170,15 @@ export default function Gear(props: GearProps) {
             />
           )}
       </Name>
-      <span>{level}</span>
+      <OutdatedInput
+        name="brisage"
+        value={brisage.ratio}
+        onChange={(event) => updateBrisage(parseInt(event.target.value, 10))}
+        lastModifiedDate={brisage.lastModifiedDate}
+      />
+      <span>
+        {level} {!isGearFreeTier ? "⚠️" : ""}
+      </span>
       <span>
         <Button onClick={addOneFailed}>-</Button>
         {sold}
@@ -199,19 +219,24 @@ export default function Gear(props: GearProps) {
           onKeyDown={onRoundKeyPress}
           onBlur={update}
           value={draftPrice}
-          shouldBeUpdated={shouldPriceBeUpdated(lastPriceUpdatedAt)}
+          shouldBeUpdated={isOlderThanOneMonth(lastPriceUpdatedAt)}
         />
         <PricesActions>
           <Button onClick={lowerPrice}>-20%</Button>
           <Button onClick={increasePrice}>+20%</Button>
         </PricesActions>
       </Price>
-      <span>{craftingPrice.toLocaleString("FR-fr")} k</span>
-      <span>{Math.round(ratio * 100)}%</span>
+      <span className={styles.craftingPrice}>
+        <span>{craftingPrice.toLocaleString("FR-fr")}k</span>
+        <Earnings craftingPrice={craftingPrice} currentPrice={currentPrice} />
+      </span>
+      <span>
+        {Math.round(ratio * 100)}% {ratio < 1 ? "🔻" : ""}
+      </span>
       <Recipe onClick={openRecipeModal}>
         {recipe.map(({ _id, name, imgUrl, quantity, isEmpty }) => (
           <Component key={_id} title={name} isEmpty={isEmpty} isTooHigh={false}>
-            <ComponentImage src={imgUrl} referrerPolicy="no-referrer" />
+            <ComponentImage src={""} referrerPolicy="no-referrer" />
             <ComponentAmount>{quantity}</ComponentAmount>
           </Component>
         ))}
@@ -242,18 +267,6 @@ export default function Gear(props: GearProps) {
       isInInventory: false,
       isInMarket: true,
     });
-  }
-
-  /**
-   * If the gear has been updated from longer than 1 month, the price should be updated
-   * @param lastPriceUpdatedAt
-   */
-  function shouldPriceBeUpdated(lastPriceUpdatedAt: Date) {
-    const oneMonthInMilliseconds = 1000 * 60 * 60 * 24 * 30;
-    return (
-      Date.now() - new Date(lastPriceUpdatedAt).getTime() >
-      oneMonthInMilliseconds
-    );
   }
 
   function showPrices() {
@@ -342,38 +355,78 @@ export default function Gear(props: GearProps) {
       }
     });
 
+    // Remove duplicate components
+    const uniqueComponents = updatedRecipes.reduce((accumulator, component) => {
+      const index = accumulator.findIndex(
+        ({ name }) => name === component.name
+      );
+      if (index === -1) {
+        accumulator.push(component);
+      } else {
+        accumulator[index].quantity += component.quantity;
+      }
+      return accumulator;
+    }, [] as ComponentType[]);
+
+    // Remove components with quantity = 0
+    const filteredComponents = uniqueComponents.filter(
+      (component) => component.quantity !== 0
+    );
+
     setDraftProduct({
       ...draftProduct,
-      recipe: updatedRecipes,
+      recipe: [...filteredComponents],
     });
   }
 
   /**
    * From the recipe, add a new component
    */
-  function addComponent(name: string, quantity = 1) {
-    const component = findResourceFromName(name);
+  async function addComponent(name: string, quantity = 1) {
+    let component = findResourceFromName(name);
+    let shouldCreateNewComponent = false;
     if (!component) {
-      alert(
+      shouldCreateNewComponent = confirm(
         'Impossible de trouver la ressource "' +
           name +
           '"' +
-          " dans la liste des ressources"
+          " dans la liste des ressources, voulez-vous l'ajouter ?"
       );
-      return;
     }
-    const updatedRecipes: GearType["recipe"] = [
-      ...recipe,
-      {
-        ...component,
-        quantity,
-        isEmpty: false,
-      },
-    ];
 
+    if (shouldCreateNewComponent) {
+      component = await createNewResource({
+        name,
+      });
+    }
+
+    if (component) {
+      const updatedRecipes: GearType["recipe"] = [
+        ...recipe,
+        {
+          ...component,
+          quantity,
+          isEmpty: false,
+        },
+      ];
+      setDraftProduct({
+        ...draftProduct,
+        recipe: updatedRecipes,
+      });
+    }
+  }
+
+  /**
+   * Updates the brisage of the gear
+   * @param brisage : number, the new brisage (%)
+   */
+  function updateBrisage(brisage: number) {
     setDraftProduct({
       ...draftProduct,
-      recipe: updatedRecipes,
+      brisage: {
+        ratio: brisage,
+        lastModifiedDate: new Date(),
+      },
     });
   }
 
@@ -479,4 +532,15 @@ export default function Gear(props: GearProps) {
       isMounted = false;
     };
   }
+}
+
+/**
+ * If the gear has been updated from longer than 1 month, the price should be updated
+ * @param lastUpdatedAt
+ */
+export function isOlderThanOneMonth(lastUpdatedAt: Date) {
+  const oneMonthInMilliseconds = 1000 * 60 * 60 * 24 * 30;
+  return (
+    Date.now() - new Date(lastUpdatedAt).getTime() > oneMonthInMilliseconds
+  );
 }

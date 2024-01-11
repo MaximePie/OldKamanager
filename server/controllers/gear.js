@@ -12,6 +12,7 @@ export async function get(request, response) {
     isPricelessOnly,
     minLevel,
     maxLevel,
+    minCurrentPrice = 0,
     isInShopHidden,
     isInInventory,
     shouldHideToBeCrafted,
@@ -20,7 +21,6 @@ export async function get(request, response) {
     shouldDisplayOldPrices,
     shouldDisplayToSellItemsOnly,
   } = request.query;
-  let remaining = 0;
   const formattedSearch = new RegExp(
     decodeURIComponent(search)
       .replace(/,*$/, "")
@@ -30,11 +30,10 @@ export async function get(request, response) {
       .trimStart(),
     "i"
   );
-
   const query = Gear.find({
-    // currentPrice: {
-    //   $gt: 15000,
-    // },
+    currentPrice: {
+      $gte: parseInt(minCurrentPrice) || 0,
+    },
     recipe: {
       $exists: true,
       $ne: [],
@@ -45,25 +44,6 @@ export async function get(request, response) {
     },
 
     name: formattedSearch,
-  });
-
-  // query.findWithoutTrophies();
-
-  remaining = await Gear.count({
-    type: {
-      $in: types.split(","),
-    },
-    currentPrice: 0,
-
-    recipe: {
-      $exists: true,
-      $ne: [],
-    },
-    level: {
-      $gte: parseInt(minLevel) || 1,
-      $lte: parseInt(maxLevel) || 200,
-    },
-    name: new RegExp(decodeURIComponent(search).toLowerCase(), "i"),
   });
 
   if (shouldDisplayToSellItemsOnly === "true") {
@@ -136,7 +116,6 @@ export async function get(request, response) {
 
   query.limit(limit);
   const gears = await query.exec();
-
   const formattedGears = await Promise.all(
     gears.map(async (gear) => {
       const recipe = await gear.formattedRecipe();
@@ -147,8 +126,7 @@ export async function get(request, response) {
     })
   );
   response.json({
-    gears: formattedGears.filter(({ recipe }) => recipe.length > 0),
-    remaining,
+    gears: formattedGears,
   });
 }
 
@@ -254,39 +232,16 @@ export async function update(request, response) {
       toBeCrafted,
       recipe,
       isInMarket,
-      craftingPrice,
       onWishList,
+      brisage,
     } = request.fields.product;
+
     const parsedCurrentPrice = parseInt(currentPrice);
-    const ratio = currentPrice / craftingPrice;
     const gear = await Gear.findById(_id);
-    if (sold > gear.sold) {
-      let gearPrice = await GearPrice.findOneAndUpdate(
-        {
-          GearId: request.params._id,
-          price: currentPrice,
-          craftingPrice,
-        },
-        {
-          $inc: {
-            numberOfSuccess: true,
-          },
-        },
-        {
-          returnDocument: "after",
-        }
-      );
-      if (!gearPrice) {
-        gearPrice = await GearPrice.create({
-          GearId: request.params._id,
-          price: currentPrice,
-          craftingPrice,
-          recordDate: Date.now(),
-          numberOfFailures: 0,
-          numberOfSuccess: 1,
-        });
-      }
-      gearPrice.updateRatio();
+    const ratio = currentPrice / gear.craftingPrice;
+
+    if (gear.brisage.ratio !== brisage.ratio) {
+      await gear.updateBrisage(brisage.ratio);
     }
 
     const updatedGear = await Gear.findByIdAndUpdate(_id, {
@@ -298,7 +253,6 @@ export async function update(request, response) {
       onWishList,
       recipe,
       isInMarket,
-      craftingPrice,
       ratio,
     }).catch((e) => {
       response.json({ e });

@@ -11,6 +11,7 @@ import { FilterContext } from "./FilterContext";
 
 type ResourcesContext = {
   resources: ResourceType[];
+  filteredResources: ResourceType[];
   isLoading: boolean;
   findResourceFromName: (name: string) => ResourceType | undefined;
   page: number;
@@ -36,8 +37,12 @@ export const ResourcesProvider = ({ children }: ProviderProps) => {
   });
   const resources = useMemo(() => {
     return formattedResources();
+  }, [data]);
+
+  const filteredResources = useMemo(() => {
+    return formattedResources();
   }, [data, filters.search]);
-  const slicedResources = resources
+  const slicedResources = filteredResources
     .slice((currentPage - 1) * pageSize, currentPage * pageSize)
     .slice(0, pageSize);
 
@@ -78,6 +83,9 @@ export const ResourcesProvider = ({ children }: ProviderProps) => {
   }
 
   function flattenedSearch(string: string) {
+    if (!string) {
+      return "";
+    }
     return string
       .toLowerCase()
       .replaceAll("é", "e")
@@ -88,13 +96,13 @@ export const ResourcesProvider = ({ children }: ProviderProps) => {
       .replaceAll("ù", "ù")
       .replaceAll("û", "û");
   }
-
   const findResourceFromName = (name: string) => {
     return resources.find((resource) => resource.name === name);
   };
 
   const value = {
     resources: slicedResources,
+    filteredResources,
     isLoading,
     page: currentPage,
     setPage: setCurrentPage,
@@ -108,4 +116,4 @@ export const ResourcesProvider = ({ children }: ProviderProps) => {
   );
 };
 
-export const useResources = () => useContext(ResourcesContext);
+export const useResourcesContext = () => useContext(ResourcesContext);

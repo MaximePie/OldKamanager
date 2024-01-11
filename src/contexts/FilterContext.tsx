@@ -1,25 +1,25 @@
-import {createContext, ReactNode, useEffect, useState} from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 
 export type Filters = {
-  isInShopHidden: boolean,
-  isPricelessOnly: boolean,
-  isInInventory: boolean,
-  shouldHideToBeCrafted: boolean,
-  shouldShowToBeCraftedOnly: boolean,
-  shouldDisplayOldPrices: boolean,
-  shouldDisplayWishlist: boolean,
-  shouldDisplayFreeTierContent: boolean,
-  shouldDisplayToSellItemsOnly: boolean,
-  search: string,
-  limit: number,
-  types: string[],
-  minLevel: number,
-  maxLevel: number,
-  minCurrentPrice: number,
-}
+  isInShopHidden: boolean;
+  isPricelessOnly: boolean;
+  isInInventory: boolean;
+  shouldHideToBeCrafted: boolean;
+  shouldShowToBeCraftedOnly: boolean;
+  shouldDisplayOldPrices: boolean;
+  shouldDisplayWishlist: boolean;
+  shouldDisplayFreeTierContent: boolean;
+  shouldDisplayToSellItemsOnly: boolean;
+  search: string;
+  limit: number;
+  types: string[];
+  minLevel: number;
+  maxLevel: number;
+  minCurrentPrice: number;
+};
 
 const InitialFilter: Filters = {
-  search: '',
+  search: "",
   types: [] as string[],
   minLevel: 1,
   maxLevel: 200,
@@ -34,7 +34,7 @@ const InitialFilter: Filters = {
   shouldDisplayFreeTierContent: false,
   shouldDisplayToSellItemsOnly: false,
   minCurrentPrice: 0,
-}
+};
 
 const FilterContext = createContext({
   filters: InitialFilter,
@@ -51,51 +51,58 @@ const FilterContext = createContext({
   updateToBeCraftedState: (shouldShowToBeCraftedOnly: boolean) => {},
   updateOldPricesDisplayState: (shouldDisplayOldPrices: boolean) => {},
   updateWishListState: (shouldDisplayWishlist: boolean) => {},
-  updateFreeTierContentDisplayState: (shouldDisplayFreeTierContent: boolean) => {},
+  updateFreeTierContentDisplayState: (
+    shouldDisplayFreeTierContent: boolean
+  ) => {},
   updateToSellItemsDisplayState: (shouldDisplayToSellItemsOnly: boolean) => {},
   updateMinCurrentPrice: (minCurrentPrice: number) => {},
 });
 
 type FilterContextProviderProps = {
-  children: ReactNode,
-}
+  children: ReactNode;
+};
 
-export default function FilterContextProvider(props: FilterContextProviderProps) {
-  const {children} = props;
+export default function FilterContextProvider(
+  props: FilterContextProviderProps
+) {
+  const { children } = props;
   const [filters, setFilters] = useState<Filters>(InitialFilter);
-
   return (
-    <FilterContext.Provider value={{
-      updateSearch,
-      updateDisplayedAmount: updateLimit,
-      updateInventoryOnlyState,
-      updateTypes,
-      updateShopOnlyState,
-      updatePricelessState,
-      updateMinLevel,
-      updateMaxLevel,
-      updateMinCurrentPrice,
-      updateHideToBeCraftedState,
-      updateToBeCraftedState,
-      updateOldPricesDisplayState,
-      updateWishListState,
-      updateFreeTierContentDisplayState,
-      updateToSellItemsDisplayState,
-      filters,
-    }}>
+    <FilterContext.Provider
+      value={{
+        updateSearch,
+        updateDisplayedAmount: updateLimit,
+        updateInventoryOnlyState,
+        updateTypes,
+        updateShopOnlyState,
+        updatePricelessState,
+        updateMinLevel,
+        updateMaxLevel,
+        updateMinCurrentPrice,
+        updateHideToBeCraftedState,
+        updateToBeCraftedState,
+        updateOldPricesDisplayState,
+        updateWishListState,
+        updateFreeTierContentDisplayState,
+        updateToSellItemsDisplayState,
+        filters,
+      }}
+    >
       {children}
     </FilterContext.Provider>
-  )
+  );
 
   /**
    * Display items currently in market and hope we find them
    * @param shouldDisplayToSellItemsOnly
    */
-  function updateToSellItemsDisplayState(shouldDisplayToSellItemsOnly: boolean) {
+  function updateToSellItemsDisplayState(
+    shouldDisplayToSellItemsOnly: boolean
+  ) {
     setFilters({
       ...filters,
-      shouldDisplayToSellItemsOnly
-    })
+      shouldDisplayToSellItemsOnly,
+    });
   }
 
   /**
@@ -103,11 +110,13 @@ export default function FilterContextProvider(props: FilterContextProviderProps)
    * @param shouldDisplayFreeTierContent boolean, whether we want to display only free tier content or not
    * True if we want to display only free tier content, false otherwise
    */
-  function updateFreeTierContentDisplayState(shouldDisplayFreeTierContent: boolean) {
+  function updateFreeTierContentDisplayState(
+    shouldDisplayFreeTierContent: boolean
+  ) {
     setFilters({
       ...filters,
-      shouldDisplayFreeTierContent
-    })
+      shouldDisplayFreeTierContent,
+    });
   }
 
   /**
@@ -116,82 +125,79 @@ export default function FilterContextProvider(props: FilterContextProviderProps)
    * @param shouldDisplayWishlist: boolean, whether we want to display only wishlist or not
    */
   function updateWishListState(shouldDisplayWishlist: boolean) {
-    setFilters(filters => ({
+    setFilters((filters) => ({
       ...filters,
       shouldDisplayWishlist,
-    }))
+    }));
   }
 
   function updateOldPricesDisplayState(shouldDisplayOldPrices: boolean) {
     setFilters({
       ...filters,
-      shouldDisplayOldPrices
-    })
+      shouldDisplayOldPrices,
+    });
   }
-
 
   function updateToBeCraftedState(shouldShowToBeCraftedOnly: boolean) {
     setFilters({
       ...filters,
-      shouldShowToBeCraftedOnly
-    })
+      shouldShowToBeCraftedOnly,
+    });
   }
-
 
   function updateMinCurrentPrice(minCurrentPrice: number) {
     setFilters({
       ...filters,
       minCurrentPrice: isNaN(minCurrentPrice) ? 0 : minCurrentPrice,
-    })
+    });
   }
 
   function updateShopOnlyState(shouldHideShop: boolean) {
     setFilters({
       ...filters,
       isInShopHidden: shouldHideShop,
-    })
+    });
   }
-
 
   function updateHideToBeCraftedState(shouldHideToBeCrafted: boolean) {
     setFilters({
       ...filters,
       shouldHideToBeCrafted,
-    })
+    });
   }
 
   function updateInventoryOnlyState(isInInventory: boolean) {
     setFilters({
       ...filters,
       isInInventory,
-    })
+    });
   }
 
   function updateMinLevel(level: number) {
     setFilters({
       ...filters,
-      minLevel: isNaN(level) ? 0 : level
+      minLevel: isNaN(level) ? 0 : level,
     });
   }
 
   function updateMaxLevel(level: number) {
     setFilters({
       ...filters,
-      maxLevel: isNaN(level) || level > 200 ? 200 : level
+      maxLevel: isNaN(level) || level > 200 ? 200 : level,
     });
   }
 
   function updatePricelessState(isPricelessOnly: boolean) {
     setFilters({
       ...filters,
-      isPricelessOnly
+      isPricelessOnly,
     });
   }
 
   function updateTypes(values: string[]): void {
     setFilters({
       ...filters,
-      types: [...values]
+      types: [...values],
     });
   }
 
@@ -205,9 +211,9 @@ export default function FilterContextProvider(props: FilterContextProviderProps)
   function updateSearch(value: string): void {
     setFilters({
       ...filters,
-      search: value
+      search: value,
     });
   }
 }
 
-export {FilterContext};
+export { FilterContext };

@@ -13,7 +13,7 @@ const shape = {
   },
   imgUrl: {
     type: String,
-    required: true,
+    default: "",
   },
   description: {
     type: String,
@@ -73,6 +73,16 @@ const shape = {
       quantity: Number,
     },
   ],
-}
+  brisage: {
+    type: {
+      lastModifiedDate: Date,
+      ratio: Number,
+    },
+    default: {
+      lastModifiedDate: Date.now(),
+      ratio: 0,
+    },
+  },
+};
 
 export default shape;

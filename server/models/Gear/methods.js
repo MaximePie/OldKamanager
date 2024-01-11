@@ -2,7 +2,6 @@ import GearPrice from "../GearPrice.js";
 import Resource from "../Resource.js";
 
 const methods = {
-
   /**
    * Set the last price updated date to today
    * @return {Promise<void>}
@@ -19,26 +18,28 @@ const methods = {
       price: this.currentPrice,
       craftingPrice: this.craftingPrice,
       recordDate: Date.now(),
-    })
+    });
   },
 
   /**
    * Merge recipe and initial resources fields
+   * Add the current price of each resource
    * @returns {Promise<void>}
    */
-  formattedRecipe: async function() {
+  formattedRecipe: async function () {
     const resources = await Resource.find({
-        name: {
-            $in: this.recipe.map(({name}) => name)
-        }
-    })
+      name: {
+        $in: this.recipe.map(({ name }) => name),
+      },
+    });
 
-    return resources.map(resource => {
+    return resources.map((resource) => {
       return {
         ...resource._doc,
-        quantity: this.recipe.find(({name}) => name === resource.name).quantity
-      }
-    })
+        quantity: this.recipe.find(({ name }) => name === resource.name)
+          .quantity,
+      };
+    });
   },
 
   /**
@@ -60,17 +61,30 @@ const methods = {
   calculateCraftingPrice: async function () {
     const recipe = await this.formattedRecipe();
     const totalCraftingPrice = recipe.reduce((accumulator, resource) => {
-      return accumulator + resource?.currentPrice * resource.quantity || 0
+      return accumulator + resource?.currentPrice * resource.quantity || 0;
     }, 0);
     if (totalCraftingPrice === 0) {
-      console.log("A problem occurred while calculating the crafting price of " + this.name + " : " + recipe);
+      console.log(
+        "A problem occurred while calculating the crafting price of " +
+          this.name +
+          " : " +
+          recipe
+      );
     }
     return totalCraftingPrice;
   },
   updateRatio: async function () {
     this.ratio = this.currentPrice / this.craftingPrice;
     this.save();
-  }
-}
+  },
+
+  updateBrisage: async function (newRatio) {
+    this.brisage = {
+      lastModifiedDate: Date.now(),
+      ratio: newRatio,
+    };
+    this.save();
+  },
+};
 
 export default methods;
