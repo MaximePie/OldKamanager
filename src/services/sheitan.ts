@@ -10,6 +10,10 @@ const sheitanItems = [
   "Fleur de Blop Indigo",
   "Patte d'Arakne",
   "Or",
+  "Fleur de blop Reinette",
+  "Fleur de Blop Coco",
+  "Kole",
+  "Pierre du Craqueleur Légendaire",
   "Gelée à la Fraise",
   "Peau de Bworkette",
   "Gelée Bleutée",
@@ -26,5 +30,6 @@ const sheitanItems = [
   "Charbon",
   "Groin de Sanglier",
   "Gelée Citron",
+  "Pic de Dragodinde",
 ];
 export const isSheitan = (item: Component) => sheitanItems.includes(item.name);

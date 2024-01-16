@@ -5,6 +5,7 @@ import {
   update,
   getPricesHistory,
   create,
+  fillImages,
 } from "../controllers/resources.js";
 import Resource from "../models/Resource.js";
 import Gear from "../models/Gear/Gear.js";
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.get("/", get);
 router.get("/fill", fill);
+router.get("/fill/images", fillImages);
 router.get("/required/fill/", async (request, response) => {
   const resources = await Resource.find({
     timesRequiredInRecipes: 1,

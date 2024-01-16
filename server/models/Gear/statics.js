@@ -6,8 +6,6 @@ const statics = {
       "recipe.name": resourceName,
     });
 
-    console.log(resourceName, gears.length);
-
     gears.map(async (gear) => {
       gear.onRecipePriceChange();
     });

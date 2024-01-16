@@ -39,6 +39,7 @@ import styles from "./Gear.module.scss";
 import { OutdatedInput } from "../../atoms/OutdatedInput";
 import { Earnings } from "../../atoms/Earnings";
 import { useResourcesApi } from "../../../hooks/useRessource/useRessourceApi";
+import { formattedImageUrl } from "../../../services/images";
 
 export default function Gear(props: GearProps) {
   const { data, afterUpdate } = props;
@@ -71,6 +72,7 @@ export default function Gear(props: GearProps) {
     isInMarket,
     lastPriceUpdatedAt,
     brisage,
+    imgUrl,
   } = draftProduct;
   const [isInitialized, setInitialisationState] = useState<boolean>(false);
 
@@ -126,6 +128,8 @@ export default function Gear(props: GearProps) {
       ],
     };
   }, [priceData?.prices]);
+
+  const totalCraftingPrice = craftingPrice * toBeCrafted;
   return (
     <StyledGear>
       {isRecipeModalOpen && (
@@ -152,11 +156,16 @@ export default function Gear(props: GearProps) {
           💰
         </SoldButton>
       )}
-      <Image src={""} alt={"icon"} referrerPolicy="no-referrer" />
+      <Image
+        src={formattedImageUrl(imgUrl, "gears")}
+        alt={"icon"}
+        referrerPolicy="no-referrer"
+      />
       <Name
         onClick={() => copyToClipboard(name)}
         onMouseEnter={() => showPrices()}
         onMouseLeave={() => hidePrices()}
+        title={totalCraftingPrice.toLocaleString("FR-fr") + "k"}
       >
         {name}
         {shouldPricesBeDisplayed &&
@@ -199,16 +208,14 @@ export default function Gear(props: GearProps) {
       <input
         type="number"
         name="toBeCrafted"
-        value={toBeCrafted}
-        onChange={(event) => updateCraftList(parseInt(event.target.value, 10))}
+        defaultValue={toBeCrafted}
+        onBlur={(event) => updateCraftList(parseInt(event.target.value, 10))}
       />
       <input
         type="number"
         name="onWishList"
-        value={onWishList}
-        onChange={(event) =>
-          updateWaitingList(parseInt(event.target.value, 10))
-        }
+        defaultValue={onWishList}
+        onBlur={(event) => updateWaitingList(parseInt(event.target.value, 10))}
       />
       <Price>
         {!hasBeenRecentlyUpdated(lastPriceUpdatedAt) && <PendingPriceIcon />}
@@ -236,7 +243,10 @@ export default function Gear(props: GearProps) {
       <Recipe onClick={openRecipeModal}>
         {recipe.map(({ _id, name, imgUrl, quantity, isEmpty }) => (
           <Component key={_id} title={name} isEmpty={isEmpty} isTooHigh={false}>
-            <ComponentImage src={""} referrerPolicy="no-referrer" />
+            <ComponentImage
+              src={formattedImageUrl(imgUrl, "resources")}
+              referrerPolicy="no-referrer"
+            />
             <ComponentAmount>{quantity}</ComponentAmount>
           </Component>
         ))}
@@ -319,8 +329,6 @@ export default function Gear(props: GearProps) {
   }
 
   function onDraftPriceChange(event: ChangeEvent<HTMLInputElement>) {
-    console.log(event);
-
     const newPrice = event.target.value;
     setDraftPrice(parseInt(newPrice));
   }
@@ -418,7 +426,7 @@ export default function Gear(props: GearProps) {
 
   /**
    * Updates the brisage of the gear
-   * @param brisage : number, the new brisage (%)
+   * @param brisage : number, the new estimated income after mashing
    */
   function updateBrisage(brisage: number) {
     setDraftProduct({

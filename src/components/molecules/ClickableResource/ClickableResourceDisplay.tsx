@@ -11,6 +11,7 @@ import Trend from "../../atoms/Trend/Trend";
 import { ClickableResourceDisplayProps } from "./types";
 import { StyledChart as Chart } from "../Gear/styles";
 import { useDebugContext } from "../../../contexts/DebugContext";
+import { formattedImageUrl } from "../../../services/images";
 
 export default function ClickableResourceDisplay(
   props: ClickableResourceDisplayProps
@@ -53,7 +54,7 @@ export default function ClickableResourceDisplay(
         onMouseLeave={onMouseLeave}
       >
         <Image
-          src=""
+          src={formattedImageUrl(imgUrl, "resources")}
           referrerPolicy="no-referrer"
           backgroundIntensity={backgroundIntensity}
         />

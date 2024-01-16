@@ -64,7 +64,7 @@ const methods = {
       return accumulator + resource?.currentPrice * resource.quantity || 0;
     }, 0);
     if (totalCraftingPrice === 0) {
-      console.log(
+      console.warn(
         "A problem occurred while calculating the crafting price of " +
           this.name +
           " : " +

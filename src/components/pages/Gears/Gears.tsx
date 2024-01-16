@@ -80,7 +80,7 @@ export default function Gears() {
         <Header>
           <span>Image</span>
           <span onClick={updateSortByName}>Nom {getNameSortingIcon()}</span>
-          <span>Brisage %</span>
+          <span>Brisage</span>
           <span>Niveau</span>
           <span>Vendus</span>
           <span>En vente</span>

@@ -3,6 +3,9 @@
 import Gear from "../models/Gear/Gear.js";
 import axios from "axios";
 import GearPrice from "../models/GearPrice.js";
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
 
 export async function get(request, response) {
   const {
@@ -374,4 +377,69 @@ export async function swapComponents(request, response) {
   );
 
   response.json(gears.map(({ name, recipe }) => ({ name, recipe })));
+}
+
+async function downloadImages(start, end) {
+  let itemAdded = 0;
+
+  const gears = await Gear.find().sort({ level: 1 });
+  const images = gears.map(({ imgUrl }) => imgUrl);
+  const newUrlList = images.map((url) => {
+    const gearDetails = url.split("items/")[1];
+    return `https://static.ankama.com/dofus/www/game/items/${gearDetails}`;
+  });
+  const slicedUrlList = newUrlList.slice(start, end);
+  for (const url of slicedUrlList) {
+    const resourceDetails = url.split("items/")[1];
+    const destination = `../src/images/gears/${resourceDetails}`;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Create the directory if it doesn't exist
+    const dir = path.dirname(destination);
+    fs.mkdirSync(dir, { recursive: true });
+
+    // File exists -> skip
+    if (fs.existsSync(destination)) {
+      console.log("File exists", destination);
+      continue;
+    }
+
+    console.log("Downloading", url, "to", destination);
+
+    try {
+      const stdout = execSync(`curl -k -o ${destination} ${url}`);
+      console.log(`stdout: ${stdout}`);
+    } catch (error) {
+      console.error(`exec error: ${error}`);
+      continue;
+    }
+
+    itemAdded++;
+
+    // Wait for 1 second before the next iteration
+  }
+
+  return {
+    message: "Challah comme on dit.",
+    count: images.length,
+    example: images[0],
+    gears: gears.slice(0, 1),
+    newUrlList: newUrlList.slice(0, 1),
+    itemAdded,
+    start,
+    end,
+  };
+}
+
+/**
+ * This method is only supposed to run once, to fill the images folder
+ * @param {*} request
+ * @param {*} response
+ */
+export async function fillImages(request, response) {
+  const result = await downloadImages(1000, 1500);
+
+  response.json(result);
+
+  return;
 }

@@ -40,7 +40,6 @@ GearSchema.post("findOneAndUpdate", async function (doc) {
   const currentRecipe = JSON.stringify(doc.recipe);
 
   if (previousRecipe !== currentRecipe) {
-    console.log("Recipe changed for" + doc.name);
     await doc.onRecipePriceChange();
   }
 

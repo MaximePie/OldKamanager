@@ -104,6 +104,7 @@ export const ResourcesProvider = ({ children }: ProviderProps) => {
     resources: slicedResources,
     filteredResources,
     isLoading,
+    allResources: resources,
     page: currentPage,
     setPage: setCurrentPage,
     findResourceFromName,
