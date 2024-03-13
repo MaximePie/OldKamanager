@@ -8,8 +8,11 @@
  * To src/images/resources/200/52251.png
  * @param url
  */
-export const formattedImageUrl = (url: string, type: "resources" | "gears") => {
-  const details = url.split("/items/")[1];
+export const formattedImageUrl = (
+  url: string = "",
+  type: "resources" | "gears"
+) => {
+  const details = url?.split("/items/")[1];
 
   if (!details || details.includes("undefined")) {
     return "";

@@ -66,8 +66,13 @@ export const Image = styled.img`
   height: 48px;
 `;
 
-export const ComponentImage = styled.img`
+type ComponentImageProps = {
+  isMajor: boolean;
+};
+export const ComponentImage = styled.img<ComponentImageProps>`
   width: 100%;
+  ${({ isMajor }) =>
+    isMajor ? "background-color: #CFC; border: solid 1px;" : ""}
 `;
 
 export const Price = styled.div`

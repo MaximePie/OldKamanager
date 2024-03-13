@@ -1,6 +1,7 @@
 // noinspection ES6MissingAwait
 
 import Gear from "../models/Gear/Gear.js";
+import Resource from "../models/Resource.js";
 import axios from "axios";
 import GearPrice from "../models/GearPrice.js";
 import { execSync } from "child_process";
@@ -12,7 +13,7 @@ export async function get(request, response) {
     search,
     limit,
     types,
-    isPricelessOnly,
+    shouldFetchOnlyBrisage,
     minLevel,
     maxLevel,
     minCurrentPrice = 0,
@@ -72,8 +73,8 @@ export async function get(request, response) {
     query.withoutShop();
   }
 
-  if (isPricelessOnly === "true") {
-    query.pricesslessOnly();
+  if (shouldFetchOnlyBrisage === "true") {
+    query.onlyBrisage();
   }
 
   if (types) {
@@ -98,19 +99,7 @@ export async function get(request, response) {
   } else if (shouldDisplayOldPrices === "false") {
     query.sort({
       ratio: "desc",
-      // name: 'asc',
-      // ratio: 'asc',
-      // level: 'asc',
     });
-    // Shattering values
-    // .find({
-    //   ratio: {
-    //     $gt: 0.30
-    //   },
-    //   level: {
-    //     $gt: 150
-    //   }
-    // })
   }
 
   query.sort({
@@ -119,19 +108,35 @@ export async function get(request, response) {
 
   query.limit(limit);
   const gears = await query.exec();
-  const formattedGears = await Promise.all(
-    gears.map(async (gear) => {
-      const recipe = await gear.formattedRecipe();
-      return {
-        ...gear._doc,
-        recipe,
-      };
-    })
-  );
+  const formattedGears = await getFormattedGears(gears, request.query);
+
   response.json({
     gears: formattedGears,
   });
 }
+
+/**
+ * If shouldDisplayOldPrices is true, return the gears as is, no need for the recipe
+ * Else, return the gears with the recipe
+ * @param {*} gears
+ * @param {*} shouldDisplayOldPrices
+ * @returns
+ */
+const getFormattedGears = async (gears, requestQuery) => {
+  const baseGearsFilters = ["shouldFetchOnlyBrisage"];
+
+  return baseGearsFilters.some((filter) => requestQuery[filter] === "true")
+    ? gears
+    : await Promise.all(
+        gears.map(async (gear) => {
+          const recipe = await gear.formattedRecipe();
+          return {
+            ...gear._doc,
+            recipe,
+          };
+        })
+      );
+};
 
 /**
  *
@@ -237,14 +242,21 @@ export async function update(request, response) {
       isInMarket,
       onWishList,
       brisage,
+      name,
     } = request.fields.product;
 
     const parsedCurrentPrice = parseInt(currentPrice);
     const gear = await Gear.findById(_id);
     const ratio = currentPrice / gear.craftingPrice;
 
-    if (gear.brisage.ratio !== brisage.ratio) {
-      await gear.updateBrisage(brisage.ratio);
+    if (brisage && gear.brisage?.ratio !== brisage?.ratio) {
+      gear.updateBrisage(brisage.ratio);
+    }
+
+    const hasBeenPutInMarket = gear.isInMarket === false && isInMarket === true;
+    let inMarketSince = gear.inMarketSince;
+    if (hasBeenPutInMarket) {
+      inMarketSince = new Date();
     }
 
     const updatedGear = await Gear.findByIdAndUpdate(_id, {
@@ -257,14 +269,19 @@ export async function update(request, response) {
       recipe,
       isInMarket,
       ratio,
+      inMarketSince,
     }).catch((e) => {
+      console.log("error", e);
       response.json({ e });
     });
+
+    await updatedGear.onRecipePriceChange();
 
     if (parseInt(currentPrice) !== gear.currentPrice) {
       await gear.updatePricesHistory();
       await gear.updateLastPriceDate();
     }
+
     response.json({
       gear: updatedGear,
     });
@@ -348,7 +365,6 @@ export async function deletePrice(request, response) {
 }
 
 export async function swapComponents(request, response) {
-  // const sourceName = "Peau de Gobelin";
   const sourceName = "Étoffe de Fantôme Pandore";
   const targetName = "Sabot de Gliglicérin";
 
@@ -431,13 +447,65 @@ async function downloadImages(start, end) {
   };
 }
 
+export async function create(request, response) {
+  const { name, recipe } = request.fields;
+  const resourceMatching = await Resource.findOne({
+    name,
+  });
+  if (!resourceMatching) {
+    response.json({
+      message: "Resource not found",
+    });
+    return;
+  }
+
+  const { level, imgUrl, type, description } = resourceMatching;
+  const createdItem = await Gear.create({
+    name,
+    level,
+    imgUrl,
+    type,
+    description,
+    recipe: recipe.map((component) => {
+      const { name, quantity } = component;
+      return {
+        name,
+        quantity,
+      };
+    }),
+  });
+
+  const craftingPrice = await createdItem.calculateCraftingPrice();
+
+  const resource = await Resource.findOne({ name });
+
+  if (resource) {
+    resource.currentPrice = craftingPrice;
+    await resource.save();
+  }
+
+  response.json({
+    createdItem,
+    resource,
+  });
+}
+
+export const deleteGear = async (request, response) => {
+  const { _id } = request.params;
+  const deletedGear = await Gear.findByIdAndDelete(_id);
+
+  response.json({
+    deletedGear,
+  });
+};
+
 /**
  * This method is only supposed to run once, to fill the images folder
  * @param {*} request
  * @param {*} response
  */
 export async function fillImages(request, response) {
-  const result = await downloadImages(1000, 1500);
+  const result = await downloadImages(2000, 2500);
 
   response.json(result);
 

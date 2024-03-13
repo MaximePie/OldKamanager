@@ -31,7 +31,7 @@ export default function Filters(props: FiltersProps) {
     updateSearch,
     updateDisplayedAmount,
     updateTypes,
-    updatePricelessState,
+    updateBrisageState: updatePricelessState,
     updateMinLevel,
     updateMaxLevel,
     updateShopOnlyState,
@@ -48,7 +48,7 @@ export default function Filters(props: FiltersProps) {
 
   const {
     isInShopHidden,
-    isPricelessOnly,
+    shouldFetchOnlyBrisage,
     search,
     types,
     minCurrentPrice,
@@ -208,13 +208,13 @@ export default function Filters(props: FiltersProps) {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={isPricelessOnly}
+                  checked={shouldFetchOnlyBrisage}
                   onChange={(event) =>
                     updatePricelessState(event.target.checked)
                   }
                 />
               }
-              label="Pas encore de prix"
+              label="Rebriser"
             />
             <FormControlLabel
               control={

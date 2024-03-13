@@ -7,6 +7,20 @@ const queries = {
     });
   },
 
+  onlyBrisage() {
+    // Or where ratio is 0
+    return this.where({
+      "brisage.ratio": {
+        $eq: 0,
+      },
+      type: {
+        $ne: "Trophée",
+      },
+    }).sort({
+      craftingPrice: "asc",
+    });
+  },
+
   withoutShop() {
     return this.where({
       isInMarket: {

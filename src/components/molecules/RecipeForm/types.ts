@@ -6,6 +6,7 @@ type RecipeFormProps = {
   onNameUpdate: (item: Component, newName: string) => void;
   onComponentQuantityUpdate: (item: Component, newQuantity: number) => void;
   name: string;
+  deleteGear: (name: string) => void;
   onComponentAdd: (name: string, quantity?: number) => void;
 };
 

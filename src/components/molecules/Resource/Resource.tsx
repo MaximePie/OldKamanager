@@ -72,11 +72,22 @@ export default function Resource(props: ResourceProps) {
         timesRequiredInRecipes={timesRequiredInRecipes}
       />
       {isEditing && onNameChange ? (
-        <input
-          type="text"
-          value={draftName}
-          onChange={(event) => handleNameChange(event.target.value)}
-        />
+        <>
+          <input
+            type="number"
+            defaultValue={quantity}
+            onBlur={(event) =>
+              onQuantityChange
+                ? onQuantityChange(parseInt(event.target.value, 10))
+                : null
+            }
+          />
+          <input
+            type="text"
+            value={draftName}
+            onChange={(event) => handleNameChange(event.target.value)}
+          />
+        </>
       ) : (
         <span>{draftName}</span>
       )}

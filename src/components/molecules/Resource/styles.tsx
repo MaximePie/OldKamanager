@@ -7,7 +7,7 @@ export const StyledResource = styled.div<StyledResourceProps>`
   display: grid;
   align-items: center;
   justify-content: center;
-  grid-template-columns: 80px 1fr 120px;
+  grid-template-columns: 80px 80px 1fr 120px;
   grid-column-gap: 1em;
 `;
 

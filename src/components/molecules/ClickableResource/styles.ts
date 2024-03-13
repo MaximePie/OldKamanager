@@ -31,6 +31,12 @@ export const StyledClickableResource = styled.div<StyledClickableResourceProps>`
     background-color: aquamarine;
     transition: background-color 600ms ease;
   }
+
+  ${({ isSheitan }) =>
+    isSheitan &&
+    `
+    border: 1px solid red;
+  `}
 `;
 
 export const Quantity = styled.span`

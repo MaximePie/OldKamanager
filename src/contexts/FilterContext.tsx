@@ -2,7 +2,7 @@ import { createContext, ReactNode, useEffect, useState } from "react";
 
 export type Filters = {
   isInShopHidden: boolean;
-  isPricelessOnly: boolean;
+  shouldFetchOnlyBrisage: boolean;
   isInInventory: boolean;
   shouldHideToBeCrafted: boolean;
   shouldShowToBeCraftedOnly: boolean;
@@ -24,7 +24,7 @@ const InitialFilter: Filters = {
   minLevel: 1,
   maxLevel: 200,
   limit: 10,
-  isPricelessOnly: false,
+  shouldFetchOnlyBrisage: false,
   isInInventory: false,
   isInShopHidden: false,
   shouldHideToBeCrafted: false,
@@ -44,7 +44,7 @@ const FilterContext = createContext({
   updateMinLevel: (value: number) => {},
   updateMaxLevel: (value: number) => {},
   updateTypes: (values: string[]) => {},
-  updatePricelessState: (shouldDisplayPricelessOnly: boolean) => {},
+  updateBrisageState: (shouldFetchOnlyBrisage: boolean) => {},
   updateShopOnlyState: (shouldHideShop: boolean) => {},
   updateInventoryOnlyState: (isInInventory: boolean) => {},
   updateHideToBeCraftedState: (shouldHideToBeCrafted: boolean) => {},
@@ -75,7 +75,7 @@ export default function FilterContextProvider(
         updateInventoryOnlyState,
         updateTypes,
         updateShopOnlyState,
-        updatePricelessState,
+        updateBrisageState,
         updateMinLevel,
         updateMaxLevel,
         updateMinCurrentPrice,
@@ -187,10 +187,10 @@ export default function FilterContextProvider(
     });
   }
 
-  function updatePricelessState(isPricelessOnly: boolean) {
+  function updateBrisageState(shouldFetchOnlyBrisage: boolean) {
     setFilters({
       ...filters,
-      isPricelessOnly,
+      shouldFetchOnlyBrisage,
     });
   }
 

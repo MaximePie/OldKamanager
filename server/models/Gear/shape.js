@@ -2,14 +2,18 @@ const shape = {
   name: {
     type: String,
     required: true,
+    unique: true,
+    index: true,
   },
   level: {
     type: Number,
     required: true,
+    index: true,
   },
   type: {
     type: String,
     required: true,
+    index: true,
   },
   imgUrl: {
     type: String,
@@ -65,7 +69,15 @@ const shape = {
     default: false,
   },
 
-  lastPriceUpdatedAt: Date,
+  lastPriceUpdatedAt: {
+    type: Date,
+    index: true,
+  },
+
+  inMarketSince: {
+    type: Date,
+    index: true,
+  },
 
   recipe: [
     {

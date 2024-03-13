@@ -30,6 +30,7 @@ export default function RecipeFormDisplay(props: RecipeFormDisplayProps) {
     name,
     onComponentQuantityUpdate,
     onComponentAdd,
+    deleteGear: deleteComponent,
   } = props;
 
   const { draftName, setDraftName, draftQuantity, setDraftQuantity } =
@@ -39,9 +40,13 @@ export default function RecipeFormDisplay(props: RecipeFormDisplayProps) {
     <Wrapper>
       <StyledRecipeFormDisplay>
         <CloseIcon onClick={() => onClose()}>X</CloseIcon>
-        <h3>{name}</h3>
+        <h3>
+          {name}{" "}
+          <button onClick={() => deleteComponent(name)}>Supprimer</button>
+        </h3>
         <Header>
           <span>Image</span>
+          <span>Quantité</span>
           <span>Nom</span>
           <span>Prix</span>
         </Header>

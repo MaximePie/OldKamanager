@@ -70,10 +70,12 @@ export default function Gear(props: GearProps) {
     onWishList,
     toBeCrafted,
     isInMarket,
+    inMarketSince,
     lastPriceUpdatedAt,
     brisage,
     imgUrl,
   } = draftProduct;
+
   const [isInitialized, setInitialisationState] = useState<boolean>(false);
 
   const [isRecipeModalOpen, setRecipeModalState] = useState(false);
@@ -140,6 +142,7 @@ export default function Gear(props: GearProps) {
           onNameUpdate={onComponentNameUpdate}
           onComponentQuantityUpdate={onComponentQuantityUpdate}
           onComponentAdd={addComponent}
+          deleteGear={deleteGear}
         />
       )}
       <SaleButton
@@ -181,9 +184,9 @@ export default function Gear(props: GearProps) {
       </Name>
       <OutdatedInput
         name="brisage"
-        value={brisage.ratio}
+        value={brisage?.ratio || 0}
         onChange={(event) => updateBrisage(parseInt(event.target.value, 10))}
-        lastModifiedDate={brisage.lastModifiedDate}
+        lastModifiedDate={brisage?.lastModifiedDate || new Date()}
       />
       <span>
         {level} {!isGearFreeTier ? "⚠️" : ""}
@@ -198,6 +201,9 @@ export default function Gear(props: GearProps) {
         name="isInMarket"
         onChange={setInMarketState}
         checked={isInMarket}
+        className={
+          isOlderThanOneMonth(inMarketSince) ? styles["outdated-in-market"] : ""
+        }
       />
       <input
         type="checkbox"
@@ -241,15 +247,30 @@ export default function Gear(props: GearProps) {
         {Math.round(ratio * 100)}% {ratio < 1 ? "🔻" : ""}
       </span>
       <Recipe onClick={openRecipeModal}>
-        {recipe.map(({ _id, name, imgUrl, quantity, isEmpty }) => (
-          <Component key={_id} title={name} isEmpty={isEmpty} isTooHigh={false}>
-            <ComponentImage
-              src={formattedImageUrl(imgUrl, "resources")}
-              referrerPolicy="no-referrer"
-            />
-            <ComponentAmount>{quantity}</ComponentAmount>
-          </Component>
-        ))}
+        {recipe.map(
+          ({
+            _id,
+            name,
+            imgUrl,
+            quantity,
+            isEmpty,
+            currentPrice: resourcePrice,
+          }) => (
+            <Component
+              key={_id}
+              title={name}
+              isEmpty={isEmpty}
+              isTooHigh={false}
+            >
+              <ComponentImage
+                src={formattedImageUrl(imgUrl, "resources")}
+                referrerPolicy="no-referrer"
+                isMajor={(resourcePrice * quantity) / craftingPrice > 0.2}
+              />
+              <ComponentAmount>{quantity}</ComponentAmount>
+            </Component>
+          )
+        )}
       </Recipe>
     </StyledGear>
   );
@@ -385,6 +406,12 @@ export default function Gear(props: GearProps) {
       ...draftProduct,
       recipe: [...filteredComponents],
     });
+  }
+
+  async function deleteGear() {
+    if (confirm("Voulez-vous supprimer l'objet " + name + " ?")) {
+      await postOnServer(`/gears/delete/${_id}`, {});
+    }
   }
 
   /**

@@ -45,12 +45,27 @@ const methods = {
   /**
    * Update the gear info based on the new recipe price
    * Crafting price, ratio, history, and last changed values
+   *
+   * If the gear is a resource, update the resource price
    * @return {Promise<void>}
    */
   async onRecipePriceChange() {
     this.craftingPrice = await this.calculateCraftingPrice();
     this.ratio = this.currentPrice / (this.craftingPrice || 1);
-    this.save();
+
+    /**
+     * If the gear is a resource, update the resource price
+     */
+    const matchingRessource = await Resource.findOne({ name: this.name });
+    if (matchingRessource) {
+      console.log(matchingRessource.name, "is a resource");
+      matchingRessource.currentPrice =
+        this.currentPrice < this.craftingPrice
+          ? this.currentPrice
+          : this.craftingPrice;
+      await matchingRessource.save();
+    }
+    await this.save();
   },
 
   setCraftingPrice: async function (price) {

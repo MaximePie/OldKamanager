@@ -26,6 +26,7 @@ type Gear = {
   isInInventory: boolean;
   isWanted: boolean;
   isInMarket: boolean;
+  inMarketSince: Date;
   toBeCrafted: number;
   onWishList: number;
 

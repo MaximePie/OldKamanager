@@ -21,6 +21,8 @@ export default function ClickableResource(props: ClickableResourceProps) {
     onQuantityChange,
     price,
     timesRequiredInRecipes,
+
+    isSheitan,
   } = props;
   const { addDebugMessage } = useDebugContext();
   const [shouldPricesBeDisplayed, setPricesDisplayState] = useState(false);
@@ -115,6 +117,8 @@ export default function ClickableResource(props: ClickableResourceProps) {
         resourcePrices={pricesHistory}
         trend={pricesTrend}
         backgroundIntensity={backgroundColor}
+        orientation="vertical"
+        isSheitan={isSheitan}
       />
     </>
   );

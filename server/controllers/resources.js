@@ -135,7 +135,7 @@ export async function fillImages(request, response) {
 
   let itemAdded = 0;
 
-  newUrlList.slice(1000, 1500).map((url, index) => {
+  newUrlList.slice(2000, 2500).map((url, index) => {
     const resourceDetails = url.split("items/")[1];
     const destination = `../src/images/resources/${resourceDetails}`;
 

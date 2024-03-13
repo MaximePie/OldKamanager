@@ -1,4 +1,3 @@
-
 import styled from "styled-components";
 export const StyledShopping = styled.div`
   width: auto;
@@ -6,10 +5,11 @@ export const StyledShopping = styled.div`
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+  row-gap: 2rem;
   align-items: flex-start;
-`
+`;
 
 export const Details = styled.div`
   display: flex;
   justify-content: space-around;
-`
+`;

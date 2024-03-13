@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 
 import { Resource as ResourceType } from "../types/Resource";
-import { getFromServer } from "../services/server";
+import { getFromServer, postOnServer } from "../services/server";
 import { FilterContext } from "./FilterContext";
 
 type ResourcesContext = {
@@ -15,7 +15,9 @@ type ResourcesContext = {
   isLoading: boolean;
   findResourceFromName: (name: string) => ResourceType | undefined;
   page: number;
+  allResources: ResourceType[];
   setPage: (page: number) => void;
+  updateResourcePrice: (resource: string, newPrice: number) => void;
 };
 
 const ResourcesContext = createContext({} as ResourcesContext);
@@ -53,6 +55,24 @@ export const ResourcesProvider = ({ children }: ProviderProps) => {
   async function fetchResources() {
     return getFromServer("/resources").then((response) => response.data);
   }
+
+  /**
+   * Update the ressource price on the server
+   * @param resource The resource to update
+   * @param newPrice The new price
+   */
+  const updateResourcePrice = async (resource: string, newPrice: number) => {
+    const resourceToUpdate = resources.find(({ name }) => name === resource);
+    if (!resourceToUpdate) {
+      return;
+    }
+    console.log(resourceToUpdate.currentPrice, newPrice);
+    if (resourceToUpdate.currentPrice !== newPrice) {
+      await postOnServer(`/resources/update/${resourceToUpdate._id}`, {
+        currentPrice: newPrice,
+      });
+    }
+  };
 
   function formattedResources(): ResourceType[] {
     const { search, shouldDisplayOldPrices } = filters;
@@ -108,6 +128,7 @@ export const ResourcesProvider = ({ children }: ProviderProps) => {
     page: currentPage,
     setPage: setCurrentPage,
     findResourceFromName,
+    updateResourcePrice,
   };
 
   return (

@@ -9,6 +9,7 @@ export default function RecipeForm(props: RecipeFormProps) {
     name,
     onComponentQuantityUpdate,
     onComponentAdd,
+    deleteGear: deleteComponent,
   } = props;
 
   return (
@@ -19,6 +20,7 @@ export default function RecipeForm(props: RecipeFormProps) {
       onComponentQuantityUpdate={onComponentQuantityUpdate}
       onComponentAdd={onComponentAdd}
       name={name}
+      deleteGear={deleteComponent}
     />
   );
 }

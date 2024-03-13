@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ShoppingDisplay from "./ShoppingDisplay";
 import { useQuery } from "react-query";
 import { getFromServer } from "../../../services/server";
-import { ShoppingQuery } from "./types";
+import { ShoppingComponent, ShoppingQuery } from "./types";
 import { Component } from "../../../types/Gear";
 import { isSheitan } from "../../../services/sheitan";
 import { useDebugContext } from "../../../contexts/DebugContext";
@@ -13,15 +13,23 @@ import { useDebugContext } from "../../../contexts/DebugContext";
  * @param b the second item
  * @returns a number that is positive if the first item is more expensive than the second item
  */
-const sortByTotalPrice = (a: Component, b: Component) => {
-  if (isSheitan(a)) {
+const sortByTotalPrice = (a: ShoppingComponent, b: ShoppingComponent) => {
+  if (a.isSheitan && !b.isSheitan) {
     return -1;
   }
-  if (isSheitan(b)) {
+
+  if (b.isSheitan && !a.isSheitan) {
     return 1;
   }
 
   return b.currentPrice * b.quantity - a.currentPrice * a.quantity;
+};
+
+export const mappedItemsForShopping = (items: Component[]) => {
+  return items.map((item) => ({
+    ...item,
+    isSheitan: isSheitan(item),
+  })) as ShoppingComponent[];
 };
 
 export default function Shopping() {
@@ -36,7 +44,9 @@ export default function Shopping() {
   const [softHiddenItems, setSoftHiddenItems] = useState<string[]>([]);
   const [lastHiddenItem, setLastHiddenItem] = useState<string | null>(null);
   const [savedAmount, setSavedAmount] = useState<number>(0);
-  const items = getItemsWithoutHiddenItems(data).sort(sortByTotalPrice);
+  const items = mappedItemsForShopping(getItemsWithoutHiddenItems(data)).sort(
+    sortByTotalPrice
+  );
   const { addDebugMessage } = useDebugContext();
 
   const total = items.reduce(

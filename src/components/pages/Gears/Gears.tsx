@@ -35,6 +35,23 @@ enum sortTypes {
   NAME_DESC,
 }
 
+/**
+ * For Each gear, calculate the income (price - craftingPrice) * quantity
+ * and sum them all
+ * @param gears
+ */
+export const getIncomeFromCrafted = (gears: GearType[]) => {
+  return gears.reduce((acc, gear) => {
+    return acc + (gear.currentPrice - gear.craftingPrice) * gear.toBeCrafted;
+  }, 0);
+};
+
+export const getOutcomeFromCrafted = (gears: GearType[]) => {
+  return gears.reduce((acc, gear) => {
+    return acc + gear.craftingPrice * gear.toBeCrafted;
+  }, 0);
+};
+
 export default function Gears() {
   const [frontFilters, setFrontFilters] = useState(
     initialFrontFilters as FrontFilters
@@ -75,7 +92,10 @@ export default function Gears() {
         Détecter la vente et envoyer une requête vers l'api (créer un script)
       </p>
       <Filters isGearsPage={true} />
-      <p>({remaining} Restants)</p>
+      <p>
+        à gagner : {getIncomeFromCrafted(gears).toLocaleString()} k, dépenses:{" "}
+        {getOutcomeFromCrafted(gears).toLocaleString()} k
+      </p>
       <StyledGears>
         <Header>
           <span>Image</span>
