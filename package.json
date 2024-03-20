@@ -19,7 +19,6 @@
     "@mui/material": "^5.8.4",
     "@reduxjs/toolkit": "^1.8.1",
     "@storybook/react": "^6.4.22",
-    "@testing-library/react-hooks": "^8.0.1",
     "@types/mongoose": "^5.11.97",
     "apexcharts": "^3.35.3",
     "axios": "^0.27.2",
