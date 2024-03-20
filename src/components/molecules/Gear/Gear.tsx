@@ -224,7 +224,6 @@ export default function Gear(props: GearProps) {
         onBlur={(event) => updateWaitingList(parseInt(event.target.value, 10))}
       />
       <Price>
-        {!hasBeenRecentlyUpdated(lastPriceUpdatedAt) && <PendingPriceIcon />}
         <PriceInput
           type="number"
           name="currentPrice"
@@ -255,6 +254,7 @@ export default function Gear(props: GearProps) {
             quantity,
             isEmpty,
             currentPrice: resourcePrice,
+            priceUpdatedAt,
           }) => (
             <Component
               key={_id}
@@ -267,6 +267,7 @@ export default function Gear(props: GearProps) {
                 referrerPolicy="no-referrer"
                 isMajor={(resourcePrice * quantity) / craftingPrice > 0.2}
               />
+              {isOlderThanOneMonth(priceUpdatedAt) && <PendingPriceIcon />}
               <ComponentAmount>{quantity}</ComponentAmount>
             </Component>
           )

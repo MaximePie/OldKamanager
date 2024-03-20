@@ -109,7 +109,7 @@ const queries = {
   findOldPrices() {
     return this.where({
       lastPriceUpdatedAt: {
-        $lt: moment().subtract(28, "d"),
+        $lt: moment().subtract(3, "d"),
       },
     }).sort({
       currentPrice: "desc",
