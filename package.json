@@ -15,6 +15,7 @@
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
     "@faker-js/faker": "^6.3.1",
+    "@million/lint": "^0.0.73",
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.4",
     "@reduxjs/toolkit": "^1.8.1",
